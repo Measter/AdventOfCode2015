@@ -188,14 +188,17 @@ fn main() -> Result<()> {
         .collect::<Result<_>>()
         .unwrap();
 
-    println!(
-        "Part 1 output: {}",
-        cookie_search(&ingredients, 100, |_| true)
-    );
-    println!(
-        "Part 2 output: {}",
-        cookie_search(&ingredients, 100, |c| c == 500)
-    );
+    let start = std::time::Instant::now();
+
+    let part1 = cookie_search(&ingredients, 100, |_| true);
+    let part2 = cookie_search(&ingredients, 100, |c| c == 500);
+
+    let elapsed = start.elapsed();
+
+    println!("Part 1 output: {}", part1);
+    println!("Part 2 output: {}", part2);
+
+    println!("Elapsed: {}us", elapsed.as_micros());
 
     Ok(())
 }

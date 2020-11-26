@@ -31,8 +31,17 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1512.txt")?;
     let values: Value = serde_json::from_str(&input)?;
 
-    println!("Part 1 output: {}", part1(&values));
-    println!("Part 2 output: {}", part2(&values));
+    let start = std::time::Instant::now();
+
+    let part1 = part1(&values);
+    let part2 = part2(&values);
+
+    let elapsed = start.elapsed();
+
+    println!("Part 1 output: {}", part1);
+    println!("Part 2 output: {}", part2);
+
+    println!("Elapsed: {}us", elapsed.as_micros());
 
     Ok(())
 }

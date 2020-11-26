@@ -30,11 +30,17 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1504.txt")?;
 
-    let part_1 = part(&input, true);
-    println!("Part 1 output: {}", part_1);
+    let start = std::time::Instant::now();
 
+    let part_1 = part(&input, true);
     let part_2 = part(&input, false);
+
+    let elapsed = start.elapsed();
+
+    println!("Part 1 output: {}", part_1);
     println!("Part 2 output: {}", part_2);
+
+    println!("Elapsed: {}ms", elapsed.as_millis());
 
     Ok(())
 }

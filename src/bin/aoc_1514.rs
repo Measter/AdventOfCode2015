@@ -128,11 +128,17 @@ fn main() -> Result<()> {
         .collect::<Result<_, _>>()
         .unwrap();
 
-    println!(
-        "Part 1 output: {}",
-        reindeer.iter().map(|r| r.distance(2503)).max().unwrap()
-    );
-    println!("Part 2 output: {:?}", part2(&reindeer, 2503).1);
+    let start = std::time::Instant::now();
+
+    let part1 = reindeer.iter().map(|r| r.distance(2503)).max().unwrap();
+    let part2 = part2(&reindeer, 2503).1;
+
+    let elapsed = start.elapsed();
+
+    println!("Part 1 output: {}", part1,);
+    println!("Part 2 output: {:?}", part2);
+
+    println!("Elapsed: {}us", elapsed.as_micros());
 
     Ok(())
 }

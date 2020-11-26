@@ -114,11 +114,17 @@ fn main() -> Result<()> {
         .map(Instruction::parse)
         .collect::<Result<_>>()?;
 
-    let part_1 = part(&instructions, &Operation::apply_part1);
-    println!("Part 1 output: {}", part_1);
+    let start = std::time::Instant::now();
 
+    let part_1 = part(&instructions, &Operation::apply_part1);
     let part_2 = part(&instructions, &Operation::apply_part2);
+
+    let elapsed = start.elapsed();
+
+    println!("Part 1 output: {}", part_1);
     println!("Part 2 output: {}", part_2);
+
+    println!("Elapsed: {}us", elapsed.as_micros());
 
     Ok(())
 }

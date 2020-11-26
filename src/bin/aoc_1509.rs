@@ -77,8 +77,17 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1509.txt")?;
     let map = Map::parse(&input)?;
 
-    println!("Part 1 output: {:?}", map.shortest());
-    println!("Part 2 output: {:?}", map.longest());
+    let start = std::time::Instant::now();
+
+    let part1 = map.shortest();
+    let part2 = map.longest();
+
+    let elapsed = start.elapsed();
+
+    println!("Part 1 output: {}", part1);
+    println!("Part 2 output: {}", part2);
+
+    println!("Elapsed: {}us", elapsed.as_micros());
 
     Ok(())
 }

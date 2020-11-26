@@ -77,11 +77,17 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1511.txt")?;
 
-    println!("Part 1 output: {}", part1_next_password(&input));
-    println!(
-        "Part 2 output: {}",
-        part1_next_password(&part1_next_password(&input))
-    );
+    let start = std::time::Instant::now();
+
+    let part1 = part1_next_password(&input);
+    let part2 = part1_next_password(&part1_next_password(&input));
+
+    let elapsed = start.elapsed();
+
+    println!("Part 1 output: {}", part1);
+    println!("Part 2 output: {}", part2);
+
+    println!("Elapsed: {}ms", elapsed.as_millis());
 
     Ok(())
 }

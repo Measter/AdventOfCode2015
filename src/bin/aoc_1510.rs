@@ -24,8 +24,17 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1510.txt")?;
 
-    println!("Part 1 output: {:?}", looksay(input.to_owned(), 40).len());
-    println!("Part 2 output: {:?}", looksay(input, 50).len());
+    let start = std::time::Instant::now();
+
+    let part1 = looksay(input.to_owned(), 40).len();
+    let part2 = looksay(input, 50).len();
+
+    let elapsed = start.elapsed();
+
+    println!("Part 1 output: {:?}", part1);
+    println!("Part 2 output: {:?}", part2);
+
+    println!("Elapsed: {}ms", elapsed.as_millis());
 
     Ok(())
 }

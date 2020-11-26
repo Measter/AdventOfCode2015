@@ -75,15 +75,23 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1513.txt")?;
     let mut table = People::parse(&input)?;
 
-    println!("Part 1 output: {}", table.biggest_happiness());
+    let start = std::time::Instant::now();
+
+    let part1 = table.biggest_happiness();
 
     table.people.push("Self");
     for p in &table.people {
         table.happiness.insert(("Self", p), 0);
         table.happiness.insert((p, "Self"), 0);
     }
+    let part2 = table.biggest_happiness();
 
-    println!("Part 2 output: {}", table.biggest_happiness());
+    let elapsed = start.elapsed();
+
+    println!("Part 1 output: {}", part1);
+    println!("Part 2 output: {}", part2);
+
+    println!("Elapsed: {}ms", elapsed.as_millis());
 
     Ok(())
 }

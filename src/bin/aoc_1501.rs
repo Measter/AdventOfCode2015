@@ -34,11 +34,17 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1501.txt")?;
 
-    let part_1: i64 = part1(&input);
-    println!("Part 1 output: {}", part_1);
+    let start = std::time::Instant::now();
 
+    let part_1: i64 = part1(&input);
     let part_2 = part2(&input).ok_or_else(|| eyre!("Part 2 result not found"))?;
+
+    let elapsed = start.elapsed();
+
+    println!("Part 1 output: {}", part_1);
     println!("Part 2 output: {}", part_2);
+
+    println!("Elapsed: {}us", elapsed.as_micros());
 
     Ok(())
 }
