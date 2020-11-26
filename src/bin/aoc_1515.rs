@@ -90,6 +90,7 @@ fn next_teaspoons(tsps: &mut [u32], max_teaspoons: u32) {
     // This means that a digit will always "roll over" to its minimum value on every increment.
     // Rolling over means that the next digit up will increment.
 
+    // The trivial cases, only one thing to do in both.
     if tsps.is_empty() {
         return;
     }
@@ -98,37 +99,50 @@ fn next_teaspoons(tsps: &mut [u32], max_teaspoons: u32) {
         return;
     }
 
+    // Check for leading 0s, so that we start counting correctly in the rollover.
     let zero_prefix_count = tsps.iter().take_while(|t| **t == 0).count();
 
     if zero_prefix_count == 0 || zero_prefix_count == tsps.len() {
-        if let [cur_digit, higher @ ..] = tsps {
-            let sum_high: u32 = higher.iter().sum();
-            let next_value = (max_teaspoons - sum_high).saturating_sub(1);
+        // No leading zeroes (e.g. [30, 30, 40]).
+        let (cur_digit, higher) = tsps.split_first_mut().unwrap();
 
-            if sum_high + *cur_digit < max_teaspoons {
-                *cur_digit += 1;
-            } else {
-                next_teaspoons(higher, (sum_high + 1).min(max_teaspoons));
-                *cur_digit = next_value;
-            }
+        let sum_high: u32 = higher.iter().sum();
+
+        if sum_high + *cur_digit < max_teaspoons {
+            // If the current digit has enough room to be incremented, we should do so here.
+            *cur_digit += 1;
+        } else {
+            // Otherwise send that increment up to the remaining set of digits, making sure not to increase
+            // the total number of maximum teaspoons.
+            next_teaspoons(higher, (sum_high + 1).min(max_teaspoons));
+            *cur_digit = (max_teaspoons - sum_high).saturating_sub(1);
         }
     } else {
+        // At least 1 leading zero (e.g. [0, 30, 70]).
+        // Split into [0] and [30, 70].
         let (left, right) = tsps.split_at_mut(zero_prefix_count);
 
         if right.len() == 1 && right[0] == max_teaspoons {
+            // There's nothing we can do in this case, as the next digit can't be incremented.
             return;
         }
 
         let right_teaspoons = right.iter().sum();
         if max_teaspoons != right_teaspoons {
+            // We know that the sum of the right side is less than the max, so the remainder should go into
+            // the least significant digit.
             left[0] = max_teaspoons - right_teaspoons;
         } else {
+            // Here the right side is the same as the max, so we need to roll over the least sig. digit
+            // in the right side.
+            // Because of the roll-over, that digit now becomes 0. The value it did have is now split between
+            // the least sig. digit of the left side, and the remainder of the right.
             let new_left_val = right[0] - 1;
-            let right_max_teaspoons = right_teaspoons - new_left_val;
-            right[0] = 0;
-
-            next_teaspoons(&mut right[1..], right_max_teaspoons);
             left[0] = new_left_val;
+
+            right[0] = 0;
+            let right_max_teaspoons = right_teaspoons - new_left_val;
+            next_teaspoons(&mut right[1..], right_max_teaspoons);
         }
     }
 }
