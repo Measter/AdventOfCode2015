@@ -1,5 +1,7 @@
 use color_eyre::eyre::{eyre, Result};
 
+use advent_of_code_2015::signed_number;
+
 #[derive(Debug, PartialEq)]
 struct Ingredient {
     name: String,
@@ -14,37 +16,25 @@ impl Ingredient {
     fn parse(line: &str) -> Result<Ingredient> {
         use nom::{
             bytes::complete::{tag, take_while1},
-            combinator::{map, opt},
             sequence::tuple,
-            IResult,
         };
-
-        fn number(input: &str) -> IResult<&str, Result<i32, std::num::ParseIntError>> {
-            map(
-                tuple((
-                    map(opt(tag("-")), |o: Option<&str>| o.is_some()),
-                    take_while1(|c: char| c.is_ascii_digit()),
-                )),
-                |(is_neg, num)| num.parse::<i32>().map(|n| if is_neg { -n } else { n }),
-            )(input)
-        }
 
         let (rm, (name, _, capacity, _, durability)) = tuple((
             take_while1(char::is_alphabetic),
             tag(": capacity "),
-            number,
+            signed_number::<i32>,
             tag(", durability "),
-            number,
+            signed_number::<i32>,
         ))(line)
         .map_err(|e| eyre!("Error parsing input: {}", e))?;
 
         let (_, (_, flavor, _, texture, _, calories)) = tuple((
             tag(", flavor "),
-            number,
+            signed_number::<i32>,
             tag(", texture "),
-            number,
+            signed_number::<i32>,
             tag(", calories "),
-            number,
+            signed_number::<i32>,
         ))(rm)
         .map_err(|e| eyre!("Error parsing input: {}", e))?;
 
