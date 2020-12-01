@@ -90,19 +90,12 @@ mod tests_1519 {
             "O" => vec!["HH"]
         ];
 
-        let expected_inverted_mappings = hashmap! [
-            "HO" => vec!["H"],
-            "OH" => vec!["H"],
-            "HH" => vec!["O"],
-        ];
-
         let expected_input = "HOH";
 
-        let (actual_mapping, actual_inverted_mapping, actual_input) = parse_input(input).unwrap();
+        let (actual_mapping, actual_input) = parse_input(input).unwrap();
 
         assert_eq!(actual_input, expected_input);
         assert_eq!(actual_mapping, expected_mapping);
-        assert_eq!(actual_inverted_mapping, expected_inverted_mappings);
     }
 
     #[test]
