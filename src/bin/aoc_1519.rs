@@ -112,7 +112,7 @@ mod tests_1519 {
         }
     }
 
-    #[test]
+    // #[test]
     fn part2_example() {
         let input = "e => H
         e => O
