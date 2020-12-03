@@ -54,7 +54,7 @@ where
         }
 
         println!(
-            "Times for {} runs: [{:?} .. {:?} .. {:?}]",
+            "Times for {} runs: [{:.3?} .. {:.3?} .. {:.3?}]",
             human_format::Formatter::new().format(total_runs as f64),
             min_run,
             total_time / total_runs,
