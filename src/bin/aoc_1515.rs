@@ -1,6 +1,6 @@
 use color_eyre::eyre::{eyre, Result};
 
-use advent_of_code_2015::signed_number;
+use advent_of_code_2015::nom::signed_number;
 
 #[derive(Debug, PartialEq)]
 struct Ingredient {

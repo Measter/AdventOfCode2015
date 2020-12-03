@@ -1,6 +1,6 @@
 use color_eyre::eyre::{eyre, Result};
 
-use advent_of_code_2015::unsigned_number;
+use advent_of_code_2015::nom::unsigned_number;
 use nom::bytes::complete::take_while1;
 
 #[derive(Debug, Default, PartialEq)]
