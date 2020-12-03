@@ -47,10 +47,6 @@ fn part1(mappings: &HashMap<&str, Vec<&str>>, input: &str) -> usize {
     seen.len()
 }
 
-fn part2(start: &str, end: &str, mappings: &HashMap<&str, Vec<&str>>) -> Option<usize> {
-    todo!();
-}
-
 fn main() -> Result<()> {
     color_eyre::install()?;
 
@@ -109,25 +105,6 @@ mod tests_1519 {
 
         for &(test, expected) in &tests {
             assert_eq!(part1(&mappings, test), expected, "{}", test);
-        }
-    }
-
-    // #[test]
-    fn part2_example() {
-        let input = "e => H
-        e => O
-        H => HO
-        H => OH
-        O => HH
-        
-        garbage";
-
-        let (mappings, _) = parse_input(input).unwrap();
-
-        let tests = [("HOH", 3), ("HOHOHO", 6)];
-
-        for &(test, expected) in &tests {
-            assert_eq!(part2("e", test, &mappings), Some(expected), "{}", test);
         }
     }
 }
