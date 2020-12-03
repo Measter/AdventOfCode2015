@@ -1,3 +1,6 @@
+#![allow(clippy::unnecessary_wraps)]
+
+use advent_of_code_2015::run;
 use color_eyre::eyre::Result;
 use itertools::Itertools;
 
@@ -40,7 +43,7 @@ impl<'a> Map<'a> {
         })
     }
 
-    fn shortest(&self) -> u32 {
+    fn shortest(&self) -> Result<u32> {
         let mut min_distance = u32::MAX;
 
         for route in self.locations.iter().permutations(self.locations.len()) {
@@ -52,10 +55,10 @@ impl<'a> Map<'a> {
             min_distance = min_distance.min(route_distance);
         }
 
-        min_distance
+        Ok(min_distance)
     }
 
-    fn longest(&self) -> u32 {
+    fn longest(&self) -> Result<u32> {
         let mut max_distance = 0;
 
         for route in self.locations.iter().permutations(self.locations.len()) {
@@ -67,7 +70,7 @@ impl<'a> Map<'a> {
             max_distance = max_distance.max(route_distance);
         }
 
-        max_distance
+        Ok(max_distance)
     }
 }
 
@@ -77,19 +80,11 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1509.txt")?;
     let map = Map::parse(&input)?;
 
-    let start = std::time::Instant::now();
-
-    let part1 = map.shortest();
-    let part2 = map.longest();
-
-    let elapsed = start.elapsed();
-
-    println!("Part 1 output: {}", part1);
-    println!("Part 2 output: {}", part2);
-
-    println!("Elapsed: {}us", elapsed.as_micros());
-
-    Ok(())
+    run(
+        "Day 9: All in a Single Night",
+        &map,
+        &[&Map::shortest, &Map::longest],
+    )
 }
 
 #[cfg(test)]
@@ -133,6 +128,6 @@ mod tests_1509 {
 
         let map = Map::parse(input).unwrap();
 
-        assert_eq!(605, map.shortest());
+        assert_eq!(605, map.shortest().unwrap());
     }
 }

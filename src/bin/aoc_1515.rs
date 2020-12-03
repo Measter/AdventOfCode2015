@@ -1,6 +1,7 @@
-use color_eyre::eyre::{eyre, Result};
+#![allow(clippy::unnecessary_wraps)]
 
-use advent_of_code_2015::nom::signed_number;
+use advent_of_code_2015::{nom::signed_number, run};
+use color_eyre::eyre::{eyre, Result};
 
 #[derive(Debug, PartialEq)]
 struct Ingredient {
@@ -141,7 +142,7 @@ fn cookie_search(
     ingredients: &[Ingredient],
     max_teaspoons: u32,
     cal_func: impl Fn(i32) -> bool,
-) -> i32 {
+) -> Result<i32> {
     let mut num_teaspoons = vec![0; ingredients.len()];
     num_teaspoons[0] = max_teaspoons;
 
@@ -164,7 +165,7 @@ fn cookie_search(
         }
     }
 
-    max_score
+    Ok(max_score)
 }
 
 fn main() -> Result<()> {
@@ -178,19 +179,13 @@ fn main() -> Result<()> {
         .collect::<Result<_>>()
         .unwrap();
 
-    let start = std::time::Instant::now();
-
-    let part1 = cookie_search(&ingredients, 100, |_| true);
-    let part2 = cookie_search(&ingredients, 100, |c| c == 500);
-
-    let elapsed = start.elapsed();
-
-    println!("Part 1 output: {}", part1);
-    println!("Part 2 output: {}", part2);
-
-    println!("Elapsed: {}us", elapsed.as_micros());
-
-    Ok(())
+    run(
+        "Day 15: Science for Hungry People",
+        &ingredients,
+        &[&|i| cookie_search(i, 100, |_| true), &|i| {
+            cookie_search(i, 100, |c| c == 500)
+        }],
+    )
 }
 
 #[cfg(test)]
@@ -292,7 +287,10 @@ mod tests_1515 {
 
         let expected = 62842880;
 
-        assert_eq!(expected, cookie_search(&ingredients, 100, |_| true));
+        assert_eq!(
+            expected,
+            cookie_search(&ingredients, 100, |_| true).unwrap()
+        );
     }
 
     #[test]
@@ -309,6 +307,9 @@ mod tests_1515 {
 
         let expected = 57600000;
 
-        assert_eq!(expected, cookie_search(&ingredients, 100, |c| c == 500));
+        assert_eq!(
+            expected,
+            cookie_search(&ingredients, 100, |c| c == 500).unwrap()
+        );
     }
 }

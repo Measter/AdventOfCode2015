@@ -1,3 +1,4 @@
+use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Result};
 
 use std::collections::HashMap;
@@ -267,19 +268,11 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1507.txt")?;
 
-    let start = std::time::Instant::now();
-
-    let part_1 = part_1(&input)?;
-    let part_2 = part_2(&input)?;
-
-    let elapsed = start.elapsed();
-
-    println!("Part 1 output: {:?}", part_1);
-    println!("Part 2 output: {:?}", part_2);
-
-    println!("Elapsed: {}us", elapsed.as_micros());
-
-    Ok(())
+    run(
+        "Day 7: Some Assembly Required",
+        input.as_str(),
+        &[&part_1, &part_2],
+    )
 }
 
 #[cfg(test)]

@@ -1,6 +1,7 @@
-use color_eyre::eyre::{eyre, Result};
+#![allow(clippy::clippy::ptr_arg)]
 
-use advent_of_code_2015::nom::unsigned_number;
+use advent_of_code_2015::{nom::unsigned_number, run};
+use color_eyre::eyre::{eyre, Result};
 use nom::bytes::complete::take_while1;
 
 #[derive(Debug, Default, PartialEq)]
@@ -60,7 +61,13 @@ impl Sue {
     }
 }
 
-fn part1(sues: &[Sue]) -> Option<&Sue> {
+impl std::fmt::Display for Sue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Sue {}", self.id)
+    }
+}
+
+fn part1(sues: &Vec<Sue>) -> Result<&Sue> {
     sues.iter()
         .filter(|s| !matches!(s.children, Some(v) if v != 3))
         .filter(|s| !matches!(s.cats, Some(v) if v != 7))
@@ -72,9 +79,10 @@ fn part1(sues: &[Sue]) -> Option<&Sue> {
         .filter(|s| !matches!(s.trees, Some(v) if v != 3))
         .filter(|s| !matches!(s.cars, Some(v) if v != 2))
         .find(|s| !matches!(s.perfumes, Some(v) if v != 1))
+        .ok_or_else(|| eyre!("Unable to find result"))
 }
 
-fn part2(sues: &[Sue]) -> Option<&Sue> {
+fn part2(sues: &Vec<Sue>) -> Result<&Sue> {
     sues.iter()
         .filter(|s| !matches!(s.children, Some(v) if v != 3))
         .filter(|s| !matches!(s.cats, Some(v) if v <= 7))
@@ -86,6 +94,7 @@ fn part2(sues: &[Sue]) -> Option<&Sue> {
         .filter(|s| !matches!(s.trees, Some(v) if v <= 3))
         .filter(|s| !matches!(s.cars, Some(v) if v != 2))
         .find(|s| !matches!(s.perfumes, Some(v) if v != 1))
+        .ok_or_else(|| eyre!("Unable to find result"))
 }
 
 fn main() -> Result<()> {
@@ -98,19 +107,7 @@ fn main() -> Result<()> {
         .map(Sue::parse)
         .collect::<Result<_>>()?;
 
-    let start = std::time::Instant::now();
-
-    let part1 = part1(&sues);
-    let part2 = part2(&sues);
-
-    let elapsed = start.elapsed();
-
-    println!("Part 1 output: {}", part1.unwrap().id);
-    println!("Part 2 output: {}", part2.unwrap().id);
-
-    println!("Elapsed: {}us", elapsed.as_micros());
-
-    Ok(())
+    run("Day 16: Aunt Sue", &sues, &[&part1, &part2])
 }
 
 #[cfg(test)]

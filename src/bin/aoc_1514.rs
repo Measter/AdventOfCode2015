@@ -1,4 +1,5 @@
-use color_eyre::eyre::Result;
+use advent_of_code_2015::run;
+use color_eyre::eyre::{eyre, Result};
 
 #[derive(Debug, PartialEq)]
 struct Reindeer {
@@ -128,19 +129,19 @@ fn main() -> Result<()> {
         .collect::<Result<_, _>>()
         .unwrap();
 
-    let start = std::time::Instant::now();
-
-    let part1 = reindeer.iter().map(|r| r.distance(2503)).max().unwrap();
-    let part2 = part2(&reindeer, 2503).1;
-
-    let elapsed = start.elapsed();
-
-    println!("Part 1 output: {}", part1,);
-    println!("Part 2 output: {:?}", part2);
-
-    println!("Elapsed: {}us", elapsed.as_micros());
-
-    Ok(())
+    run(
+        "Day 14: Reindeer Olympics",
+        &reindeer,
+        &[
+            &|r| {
+                r.iter()
+                    .map(|r| r.distance(2503))
+                    .max()
+                    .ok_or_else(|| eyre!("No result found"))
+            },
+            &|r| Ok(part2(r, 2503).1),
+        ],
+    )
 }
 
 #[cfg(test)]

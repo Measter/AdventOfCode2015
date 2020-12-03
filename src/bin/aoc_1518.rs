@@ -1,3 +1,6 @@
+#![allow(clippy::unnecessary_wraps)]
+
+use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Result};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -116,7 +119,7 @@ impl LightArray {
     }
 }
 
-fn run(mut array: LightArray, stuck: bool) -> usize {
+fn run_gol(mut array: LightArray, stuck: bool) -> Result<usize> {
     if stuck {
         array.apply_stuck();
     }
@@ -125,11 +128,11 @@ fn run(mut array: LightArray, stuck: bool) -> usize {
         array.step(stuck);
     }
 
-    array
+    Ok(array
         .array
         .iter()
         .map(|&l| (l == LightState::On) as usize)
-        .sum()
+        .sum())
 }
 
 fn main() -> Result<()> {
@@ -137,21 +140,14 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1518.txt")?;
     let light_array = LightArray::parse(&input).unwrap();
-    let light_array_p2 = light_array.clone();
 
-    let start = std::time::Instant::now();
-
-    let part1 = run(light_array, false);
-    let part2 = run(light_array_p2, true);
-
-    let elapsed = start.elapsed();
-
-    println!("Part 1 output: {}", part1);
-    println!("Part 2 output: {}", part2);
-
-    println!("Elapsed: {}ms", elapsed.as_millis());
-
-    Ok(())
+    run(
+        "Day 18: Like a GIF For Your Yard",
+        &light_array,
+        &[&|l| run_gol(l.clone(), false), &|l| {
+            run_gol(l.clone(), true)
+        }],
+    )
 }
 
 #[cfg(test)]

@@ -1,8 +1,9 @@
-use color_eyre::eyre::Result;
+use advent_of_code_2015::run;
+use color_eyre::eyre::{eyre, Result};
 
 use std::fmt::Write;
 
-fn part(input: &str, is_five: bool) -> u32 {
+fn part(input: &str, is_five: bool) -> Result<u32> {
     let mut buf = String::new();
 
     for i in 0..u32::MAX {
@@ -16,13 +17,13 @@ fn part(input: &str, is_five: bool) -> u32 {
 
         if (is_five && matches!(digest.0, [0, 0, 0..=0xF, ..])) || matches!(digest.0, [0, 0, 0, ..])
         {
-            return i;
+            return Ok(i);
         }
 
         buf.clear();
     }
 
-    0
+    Err(eyre!("Unable to find result"))
 }
 
 fn main() -> Result<()> {
@@ -30,19 +31,11 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1504.txt")?;
 
-    let start = std::time::Instant::now();
-
-    let part_1 = part(&input, true);
-    let part_2 = part(&input, false);
-
-    let elapsed = start.elapsed();
-
-    println!("Part 1 output: {}", part_1);
-    println!("Part 2 output: {}", part_2);
-
-    println!("Elapsed: {}ms", elapsed.as_millis());
-
-    Ok(())
+    run(
+        "Day 4: The Ideal Stocking Stuffer",
+        input.as_str(),
+        &[&|i| part(i, true), &|i| part(i, false)],
+    )
 }
 
 #[cfg(test)]
@@ -54,7 +47,7 @@ mod tests_1504 {
         let vals = [("abcdef", 609043), ("pqrstuv", 1048970)];
 
         for &(input, output) in &vals {
-            assert_eq!(output, part(input, true));
+            assert_eq!(output, part(input, true).unwrap());
         }
     }
 }

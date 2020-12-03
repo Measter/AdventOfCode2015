@@ -1,9 +1,10 @@
-use color_eyre::eyre::Result;
+use advent_of_code_2015::run;
+use color_eyre::eyre::{eyre, Result};
 use itertools::Itertools;
 
 use std::num::ParseIntError;
 
-fn part1(containers: &[u32], total_eggnog: u32) -> usize {
+fn part1(containers: &[u32], total_eggnog: u32) -> Result<usize> {
     let mut num_permutations = 0;
 
     for len in 1..=containers.len() {
@@ -14,10 +15,14 @@ fn part1(containers: &[u32], total_eggnog: u32) -> usize {
             .count();
     }
 
-    num_permutations
+    if num_permutations == 0 {
+        Err(eyre!("No result found"))
+    } else {
+        Ok(num_permutations)
+    }
 }
 
-fn part2(containers: &[u32], total_eggnog: u32) -> usize {
+fn part2(containers: &[u32], total_eggnog: u32) -> Result<usize> {
     for len in 1..=containers.len() {
         let count = containers
             .iter()
@@ -26,11 +31,11 @@ fn part2(containers: &[u32], total_eggnog: u32) -> usize {
             .count();
 
         if count > 0 {
-            return count;
+            return Ok(count);
         }
     }
 
-    0
+    Err(eyre!("No result found"))
 }
 
 fn main() -> Result<()> {
@@ -43,19 +48,11 @@ fn main() -> Result<()> {
         .map(str::parse)
         .collect::<Result<_, ParseIntError>>()?;
 
-    let start = std::time::Instant::now();
-
-    let part1 = part1(&containers, 150);
-    let part2 = part2(&containers, 150);
-
-    let elapsed = start.elapsed();
-
-    println!("Part 1 output: {}", part1);
-    println!("Part 2 output: {}", part2);
-
-    println!("Elapsed: {}ms", elapsed.as_millis());
-
-    Ok(())
+    run(
+        "Day 17: No Such Thing as Too Much",
+        &containers,
+        &[&|c| part1(c, 150), &|c| part2(c, 150)],
+    )
 }
 
 #[cfg(test)]
@@ -66,13 +63,13 @@ mod tests_1517 {
     fn part1_example() {
         let containers = [20, 15, 10, 5, 5];
 
-        assert_eq!(4, part1(&containers, 25));
+        assert_eq!(4, part1(&containers, 25).unwrap());
     }
 
     #[test]
     fn part2_example() {
         let containers = [20, 15, 10, 5, 5];
 
-        assert_eq!(3, part2(&containers, 25));
+        assert_eq!(3, part2(&containers, 25).unwrap());
     }
 }

@@ -1,9 +1,12 @@
+#![allow(clippy::unnecessary_wraps)]
+
+use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Result};
 use itertools::Itertools;
 
 use std::collections::{BTreeSet, HashMap};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 struct People<'a> {
     happiness: HashMap<(&'a str, &'a str), i32>,
     people: Vec<&'a str>,
@@ -47,7 +50,7 @@ impl<'a> People<'a> {
         })
     }
 
-    fn biggest_happiness(&self) -> i32 {
+    fn biggest_happiness(&self) -> Result<i32> {
         let mut max_change = 0;
 
         for mut arrangement in self.people.iter().permutations(self.people.len()) {
@@ -65,7 +68,7 @@ impl<'a> People<'a> {
             max_change = max_change.max(happiness);
         }
 
-        max_change
+        Ok(max_change)
     }
 }
 
@@ -73,27 +76,22 @@ fn main() -> Result<()> {
     color_eyre::install()?;
 
     let input = std::fs::read_to_string("inputs/aoc_1513.txt")?;
-    let mut table = People::parse(&input)?;
+    let part1_table = People::parse(&input)?;
 
-    let start = std::time::Instant::now();
-
-    let part1 = table.biggest_happiness();
-
-    table.people.push("Self");
-    for p in &table.people {
-        table.happiness.insert(("Self", p), 0);
-        table.happiness.insert((p, "Self"), 0);
+    let mut part2_table = part1_table.clone();
+    part2_table.people.push("Self");
+    for p in &part2_table.people {
+        part2_table.happiness.insert(("Self", p), 0);
+        part2_table.happiness.insert((p, "Self"), 0);
     }
-    let part2 = table.biggest_happiness();
 
-    let elapsed = start.elapsed();
-
-    println!("Part 1 output: {}", part1);
-    println!("Part 2 output: {}", part2);
-
-    println!("Elapsed: {}ms", elapsed.as_millis());
-
-    Ok(())
+    run(
+        "Day 13: Knights of the Dinner Table",
+        (&part1_table, &part2_table),
+        &[&|(table, _)| table.biggest_happiness(), &|(_, table)| {
+            table.biggest_happiness()
+        }],
+    )
 }
 
 #[cfg(test)]
@@ -158,6 +156,6 @@ mod tests_1513 {
         let table = People::parse(input).unwrap();
         let actual = table.biggest_happiness();
 
-        assert_eq!(330, actual);
+        assert_eq!(330, actual.unwrap());
     }
 }

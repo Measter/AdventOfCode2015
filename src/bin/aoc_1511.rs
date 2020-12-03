@@ -1,3 +1,6 @@
+#![allow(clippy::unnecessary_wraps)]
+
+use advent_of_code_2015::run;
 use color_eyre::eyre::Result;
 
 fn banned_char(c: char) -> bool {
@@ -38,7 +41,7 @@ fn part1_validity(pswd: &str) -> bool {
     !has_banned_letters && has_triplet && seen_pairs >= 2
 }
 
-fn part1_next_password(pswd: &str) -> String {
+fn part1_next_password(pswd: &str) -> Result<String> {
     let max_num = 26u64.pow(9) - 1;
 
     let decoded = pswd
@@ -69,7 +72,7 @@ fn part1_next_password(pswd: &str) -> String {
         }
     }
 
-    next_buf
+    Ok(next_buf)
 }
 
 fn main() -> Result<()> {
@@ -77,19 +80,13 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1511.txt")?;
 
-    let start = std::time::Instant::now();
-
-    let part1 = part1_next_password(&input);
-    let part2 = part1_next_password(&part1_next_password(&input));
-
-    let elapsed = start.elapsed();
-
-    println!("Part 1 output: {}", part1);
-    println!("Part 2 output: {}", part2);
-
-    println!("Elapsed: {}ms", elapsed.as_millis());
-
-    Ok(())
+    run(
+        "Day 11: Corporate Policy",
+        input.as_str(),
+        &[&part1_next_password, &|pswd| {
+            part1_next_password(pswd).and_then(|pswd| part1_next_password(&*pswd))
+        }],
+    )
 }
 
 #[cfg(test)]
@@ -118,7 +115,7 @@ mod tests_1511 {
         let tests = [("abcdefgh", "abcdffaa"), ("ghijklmn", "ghjaabcc")];
 
         for &(pswd, expected) in &tests {
-            assert_eq!(part1_next_password(pswd), expected, "{}", pswd);
+            assert_eq!(part1_next_password(pswd).unwrap(), expected, "{}", pswd);
         }
     }
 }

@@ -1,3 +1,4 @@
+use advent_of_code_2015::run;
 use color_eyre::eyre::Result;
 use itertools::Itertools;
 
@@ -24,19 +25,13 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1510.txt")?;
 
-    let start = std::time::Instant::now();
-
-    let part1 = looksay(input.to_owned(), 40).len();
-    let part2 = looksay(input, 50).len();
-
-    let elapsed = start.elapsed();
-
-    println!("Part 1 output: {:?}", part1);
-    println!("Part 2 output: {:?}", part2);
-
-    println!("Elapsed: {}ms", elapsed.as_millis());
-
-    Ok(())
+    run(
+        "Day 10: Elves Look, Elves Say",
+        input.as_str(),
+        &[&|i| Ok(looksay(i.to_owned(), 40).len()), &|i| {
+            Ok(looksay(i.to_owned(), 50).len())
+        }],
+    )
 }
 
 #[cfg(test)]

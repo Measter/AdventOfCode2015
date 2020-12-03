@@ -1,3 +1,6 @@
+#![allow(clippy::unnecessary_wraps)]
+
+use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Result};
 
 use std::collections::{HashMap, HashSet};
@@ -27,7 +30,7 @@ fn parse_input(input: &str) -> Result<(HashMap<&str, Vec<&str>>, &str)> {
     Ok((mappings, input))
 }
 
-fn part1(mappings: &HashMap<&str, Vec<&str>>, input: &str) -> usize {
+fn part1(mappings: &HashMap<&str, Vec<&str>>, input: &str) -> Result<usize> {
     let mut seen = HashSet::new();
 
     for (from, tos) in mappings {
@@ -44,7 +47,7 @@ fn part1(mappings: &HashMap<&str, Vec<&str>>, input: &str) -> usize {
         }
     }
 
-    seen.len()
+    Ok(seen.len())
 }
 
 fn main() -> Result<()> {
@@ -53,19 +56,11 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1519.txt")?;
     let (mappings, input) = parse_input(&input)?;
 
-    let start = std::time::Instant::now();
-
-    let part1 = part1(&mappings, input);
-    // let part2 = part2("e", input, &mappings);
-
-    let elapsed = start.elapsed();
-
-    println!("Part 1 output: {}", part1);
-    // println!("Part 2 output: {:?}", part2);
-
-    println!("Elapsed: {}ms", elapsed.as_millis());
-
-    Ok(())
+    run(
+        "Day 19: Medicine for Rudolph",
+        (&mappings, input),
+        &[&|(m, i)| part1(m, i)],
+    )
 }
 
 #[cfg(test)]
@@ -104,7 +99,7 @@ mod tests_1519 {
         let tests = [("HOH", 4), ("HOHOHO", 7)];
 
         for &(test, expected) in &tests {
-            assert_eq!(part1(&mappings, test), expected, "{}", test);
+            assert_eq!(part1(&mappings, test).unwrap(), expected, "{}", test);
         }
     }
 }

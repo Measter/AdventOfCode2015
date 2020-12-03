@@ -1,3 +1,6 @@
+#![allow(clippy::unnecessary_wraps)]
+
+use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Result};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -83,7 +86,7 @@ impl Operation {
     }
 }
 
-fn part<T: Copy + Default>(input: &[Instruction], f: &dyn Fn(Operation, &mut T)) -> u64
+fn part<T: Copy + Default>(input: &[Instruction], f: &dyn Fn(Operation, &mut T)) -> Result<u64>
 where
     u64: From<T>,
 {
@@ -102,7 +105,7 @@ where
             });
     }
 
-    light_array.into_iter().map(u64::from).sum()
+    Ok(light_array.into_iter().map(u64::from).sum())
 }
 
 fn main() -> Result<()> {
@@ -114,19 +117,14 @@ fn main() -> Result<()> {
         .map(Instruction::parse)
         .collect::<Result<_>>()?;
 
-    let start = std::time::Instant::now();
-
-    let part_1 = part(&instructions, &Operation::apply_part1);
-    let part_2 = part(&instructions, &Operation::apply_part2);
-
-    let elapsed = start.elapsed();
-
-    println!("Part 1 output: {}", part_1);
-    println!("Part 2 output: {}", part_2);
-
-    println!("Elapsed: {}us", elapsed.as_micros());
-
-    Ok(())
+    // WTF rustfmt?
+    run(
+        "Day 6: Probably a Fire Hazard",
+        &instructions,
+        &[&|i| part(i, &Operation::apply_part1), &|i| {
+            part(i, &Operation::apply_part2)
+        }],
+    )
 }
 
 #[cfg(test)]

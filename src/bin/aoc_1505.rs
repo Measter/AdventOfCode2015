@@ -1,3 +1,4 @@
+use advent_of_code_2015::run;
 use color_eyre::eyre::Result;
 
 fn part1(input: &str) -> bool {
@@ -49,28 +50,14 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1505.txt")?;
 
-    let start = std::time::Instant::now();
-
-    let part_1 = input
-        .lines()
-        .map(|line| part1(line.trim()))
-        .filter(|i| *i)
-        .count();
-
-    let part_2 = input
-        .lines()
-        .map(|line| part2(line.trim()))
-        .filter(|i| *i)
-        .count();
-
-    let elapsed = start.elapsed();
-
-    println!("Part 1 output: {}", part_1);
-    println!("Part 2 output: {}", part_2);
-
-    println!("Elapsed: {}us", elapsed.as_micros());
-
-    Ok(())
+    run(
+        "Day 5: Doesn't He Have Intern-Elves For This?",
+        input.as_str(),
+        &[
+            &|i| Ok(i.lines().map(str::trim).map(part1).filter(|i| *i).count()),
+            &|i| Ok(i.lines().map(str::trim).map(part2).filter(|i| *i).count()),
+        ],
+    )
 }
 
 #[cfg(test)]

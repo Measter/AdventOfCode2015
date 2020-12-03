@@ -1,3 +1,4 @@
+use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Report, Result};
 
 #[derive(Debug, Copy, Clone)]
@@ -74,19 +75,11 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1502.txt")?;
 
-    let start = std::time::Instant::now();
-
-    let part_1 = part(&input, &Box::paper)?;
-    let part_2 = part(&input, &Box::ribbon)?;
-
-    let elapsed = start.elapsed();
-
-    println!("Part 1 output: {}", part_1);
-    println!("Part 2 output: {}", part_2);
-
-    println!("Elapsed: {}us", elapsed.as_micros());
-
-    Ok(())
+    run(
+        "Day 2: I Was Told There Would Be No Math",
+        input.as_str(),
+        &[&|i| part(i, &Box::paper), &|i| part(i, &Box::ribbon)],
+    )
 }
 
 #[cfg(test)]

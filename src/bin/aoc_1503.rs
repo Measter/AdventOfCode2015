@@ -1,3 +1,6 @@
+#![allow(clippy::unnecessary_wraps)]
+
+use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Report, Result};
 
 use std::collections::HashSet;
@@ -29,8 +32,8 @@ impl std::str::FromStr for MoveList {
     }
 }
 
-fn part1(input: &MoveList) -> usize {
-    input
+fn part1(input: &MoveList) -> Result<usize> {
+    Ok(input
         .0
         .iter()
         .scan((0, 0), |(x, y), mv| {
@@ -45,12 +48,12 @@ fn part1(input: &MoveList) -> usize {
         })
         .chain(std::iter::once((0, 0))) // Need to add the origin
         .collect::<HashSet<(i32, i32)>>()
-        .len()
+        .len())
 }
 
-fn part2(input: &MoveList) -> usize {
+fn part2(input: &MoveList) -> Result<usize> {
     let init = [(0, 0), (0, 0)];
-    input
+    Ok(input
         .0
         .chunks_exact(2)
         .scan(init, |coords, moves| {
@@ -68,28 +71,20 @@ fn part2(input: &MoveList) -> usize {
         .flatten()
         .chain(std::iter::once((0, 0))) // Need to add the origin
         .collect::<HashSet<(i32, i32)>>()
-        .len()
+        .len())
 }
 
 fn main() -> Result<()> {
     color_eyre::install()?;
 
     let input = std::fs::read_to_string("inputs/aoc_1503.txt")?;
-    let moves = input.parse()?;
+    let moves: MoveList = input.parse()?;
 
-    let start = std::time::Instant::now();
-
-    let part_1 = part1(&moves);
-    let part_2 = part2(&moves);
-
-    let elapsed = start.elapsed();
-
-    println!("Part 1 output: {}", part_1);
-    println!("Part 2 output: {}", part_2);
-
-    println!("Elapsed: {}us", elapsed.as_micros());
-
-    Ok(())
+    run(
+        "Day 3: Perfectly Spherical Houses in a Vacuum",
+        &moves,
+        &[&part1, &part2],
+    )
 }
 
 #[cfg(test)]
@@ -102,7 +97,7 @@ mod tests_1503 {
 
         for &(input, output) in &vals {
             let moves = input.parse().unwrap();
-            assert_eq!(output, part1(&moves));
+            assert_eq!(output, part1(&moves).unwrap());
         }
     }
 
@@ -112,7 +107,7 @@ mod tests_1503 {
 
         for &(input, output) in &vals {
             let moves = input.parse().unwrap();
-            assert_eq!(output, part2(&moves));
+            assert_eq!(output, part2(&moves).unwrap());
         }
     }
 }
