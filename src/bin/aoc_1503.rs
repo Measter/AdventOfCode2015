@@ -1,6 +1,5 @@
 #![allow(clippy::unnecessary_wraps)]
 
-use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Report, Result};
 
 use std::collections::HashSet;
@@ -80,10 +79,11 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1503.txt")?;
     let moves: MoveList = input.parse()?;
 
-    run(
+    aoc_lib::run(
         "Day 3: Perfectly Spherical Houses in a Vacuum",
         &moves,
-        &[&part1, &part2],
+        &part1,
+        &part2,
     )
 }
 

@@ -1,6 +1,5 @@
 #![allow(clippy::unnecessary_wraps)]
 
-use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Result};
 
 fn part1(input: &str) -> Result<i64> {
@@ -38,7 +37,7 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1501.txt")?;
 
-    run("Day 1: Not Quite Lisp", input.as_str(), &[&part1, &part2])
+    aoc_lib::run("Day 1: Not Quite Lisp", input.as_str(), &part1, &part2)
 }
 
 #[cfg(test)]

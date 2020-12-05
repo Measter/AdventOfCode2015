@@ -1,6 +1,5 @@
 #![allow(clippy::unnecessary_wraps)]
 
-use advent_of_code_2015::run;
 use color_eyre::eyre::Result;
 
 fn banned_char(c: char) -> bool {
@@ -80,12 +79,11 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1511.txt")?;
 
-    run(
+    aoc_lib::run(
         "Day 11: Corporate Policy",
         input.as_str(),
-        &[&part1_next_password, &|pswd| {
-            part1_next_password(pswd).and_then(|pswd| part1_next_password(&*pswd))
-        }],
+        &part1_next_password,
+        &|pswd| part1_next_password(pswd).and_then(|pswd| part1_next_password(&*pswd)),
     )
 }
 

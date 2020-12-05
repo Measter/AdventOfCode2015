@@ -1,6 +1,6 @@
 #![allow(clippy::clippy::ptr_arg)]
 
-use advent_of_code_2015::{nom::unsigned_number, run};
+use aoc_lib::parsers::unsigned_number;
 use color_eyre::eyre::{eyre, Result};
 use nom::bytes::complete::take_while1;
 
@@ -107,7 +107,7 @@ fn main() -> Result<()> {
         .map(Sue::parse)
         .collect::<Result<_>>()?;
 
-    run("Day 16: Aunt Sue", &sues, &[&part1, &part2])
+    aoc_lib::run("Day 16: Aunt Sue", &sues, &part1, &part2)
 }
 
 #[cfg(test)]

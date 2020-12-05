@@ -1,6 +1,6 @@
 #![allow(clippy::unnecessary_wraps)]
 
-use advent_of_code_2015::{nom::split_pair, run};
+use aoc_lib::parsers::split_pair;
 use color_eyre::eyre::{eyre, Result};
 use itertools::Itertools;
 
@@ -204,12 +204,11 @@ fn main() -> Result<()> {
     let armor = Equipment::get_armor();
     let rings = Equipment::get_rings();
 
-    run(
+    aoc_lib::run(
         "Day 21: RPG Simulator 20XX",
         (&boss, &weapons, &armor, &rings),
-        &[&|(b, w, a, r)| part1(b, w, a, r), &|(b, w, a, r)| {
-            part2(b, w, a, r)
-        }],
+        &|(b, w, a, r)| part1(b, w, a, r),
+        &|(b, w, a, r)| part2(b, w, a, r),
     )
 }
 

@@ -1,6 +1,5 @@
 #![allow(clippy::unnecessary_wraps)]
 
-use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Result};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -117,13 +116,11 @@ fn main() -> Result<()> {
         .map(Instruction::parse)
         .collect::<Result<_>>()?;
 
-    // WTF rustfmt?
-    run(
+    aoc_lib::run(
         "Day 6: Probably a Fire Hazard",
         &instructions,
-        &[&|i| part(i, &Operation::apply_part1), &|i| {
-            part(i, &Operation::apply_part2)
-        }],
+        &|i| part(i, &Operation::apply_part1),
+        &|i| part(i, &Operation::apply_part2),
     )
 }
 

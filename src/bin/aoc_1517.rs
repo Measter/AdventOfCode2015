@@ -1,4 +1,3 @@
-use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Result};
 use itertools::Itertools;
 
@@ -48,10 +47,11 @@ fn main() -> Result<()> {
         .map(str::parse)
         .collect::<Result<_, ParseIntError>>()?;
 
-    run(
+    aoc_lib::run(
         "Day 17: No Such Thing as Too Much",
         &containers,
-        &[&|c| part1(c, 150), &|c| part2(c, 150)],
+        &|c| part1(c, 150),
+        &|c| part2(c, 150),
     )
 }
 

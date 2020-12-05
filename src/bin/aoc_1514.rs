@@ -1,4 +1,3 @@
-use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Result};
 
 #[derive(Debug, PartialEq)]
@@ -129,18 +128,16 @@ fn main() -> Result<()> {
         .collect::<Result<_, _>>()
         .unwrap();
 
-    run(
+    aoc_lib::run(
         "Day 14: Reindeer Olympics",
         &reindeer,
-        &[
-            &|r| {
-                r.iter()
-                    .map(|r| r.distance(2503))
-                    .max()
-                    .ok_or_else(|| eyre!("No result found"))
-            },
-            &|r| Ok(part2(r, 2503).1),
-        ],
+        &|r| {
+            r.iter()
+                .map(|r| r.distance(2503))
+                .max()
+                .ok_or_else(|| eyre!("No result found"))
+        },
+        &|r| Ok(part2(r, 2503).1),
     )
 }
 

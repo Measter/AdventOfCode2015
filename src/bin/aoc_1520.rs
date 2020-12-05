@@ -1,4 +1,3 @@
-use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Result};
 
 fn part1(num_presents: usize) -> Result<usize> {
@@ -41,10 +40,11 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1520.txt")?;
     let input = input.trim().parse::<usize>()?;
 
-    run(
+    aoc_lib::run(
         "Day 20: Infinite Elves and Infinite Houses",
         input,
-        &[&|i| part1(i), &|i| part2(i)],
+        &|i| part1(i),
+        &|i| part2(i),
     )
 }
 

@@ -1,4 +1,3 @@
-use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Report, Result};
 
 #[derive(Debug, Copy, Clone)]
@@ -75,10 +74,11 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1502.txt")?;
 
-    run(
+    aoc_lib::run(
         "Day 2: I Was Told There Would Be No Math",
         input.as_str(),
-        &[&|i| part(i, &Box::paper), &|i| part(i, &Box::ribbon)],
+        &|i| part(i, &Box::paper),
+        &|i| part(i, &Box::ribbon),
     )
 }
 

@@ -1,4 +1,3 @@
-use advent_of_code_2015::run;
 use color_eyre::eyre::{Report, Result};
 use serde_json::Value;
 
@@ -43,7 +42,7 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1512.txt")?;
     let values: Value = serde_json::from_str(&input)?;
 
-    run("Day 12: JSAbacusFramework.io", &values, &[&part1, &part2])
+    aoc_lib::run("Day 12: JSAbacusFramework.io", &values, &part1, &part2)
 }
 
 #[cfg(test)]

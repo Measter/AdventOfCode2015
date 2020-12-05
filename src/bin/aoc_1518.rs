@@ -1,6 +1,5 @@
 #![allow(clippy::unnecessary_wraps)]
 
-use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Result};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -141,12 +140,11 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1518.txt")?;
     let light_array = LightArray::parse(&input).unwrap();
 
-    run(
+    aoc_lib::run(
         "Day 18: Like a GIF For Your Yard",
         &light_array,
-        &[&|l| run_gol(l.clone(), false), &|l| {
-            run_gol(l.clone(), true)
-        }],
+        &|l| run_gol(l.clone(), false),
+        &|l| run_gol(l.clone(), true),
     )
 }
 

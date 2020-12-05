@@ -1,4 +1,3 @@
-use advent_of_code_2015::run;
 use color_eyre::eyre::Result;
 
 fn part1(input: &str) -> bool {
@@ -50,13 +49,11 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1505.txt")?;
 
-    run(
+    aoc_lib::run(
         "Day 5: Doesn't He Have Intern-Elves For This?",
         input.as_str(),
-        &[
-            &|i| Ok(i.lines().map(str::trim).map(part1).filter(|i| *i).count()),
-            &|i| Ok(i.lines().map(str::trim).map(part2).filter(|i| *i).count()),
-        ],
+        &|i| Ok(i.lines().map(str::trim).map(part1).filter(|i| *i).count()),
+        &|i| Ok(i.lines().map(str::trim).map(part2).filter(|i| *i).count()),
     )
 }
 

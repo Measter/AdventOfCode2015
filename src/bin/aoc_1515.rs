@@ -1,6 +1,6 @@
 #![allow(clippy::unnecessary_wraps)]
 
-use advent_of_code_2015::{nom::signed_number, run};
+use aoc_lib::parsers::signed_number;
 use color_eyre::eyre::{eyre, Result};
 
 #[derive(Debug, PartialEq)]
@@ -179,12 +179,11 @@ fn main() -> Result<()> {
         .collect::<Result<_>>()
         .unwrap();
 
-    run(
+    aoc_lib::run(
         "Day 15: Science for Hungry People",
         &ingredients,
-        &[&|i| cookie_search(i, 100, |_| true), &|i| {
-            cookie_search(i, 100, |c| c == 500)
-        }],
+        &|i| cookie_search(i, 100, |_| true),
+        &|i| cookie_search(i, 100, |c| c == 500),
     )
 }
 

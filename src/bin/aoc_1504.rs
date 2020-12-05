@@ -1,4 +1,3 @@
-use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Result};
 
 use std::fmt::Write;
@@ -31,10 +30,11 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1504.txt")?;
 
-    run(
+    aoc_lib::run(
         "Day 4: The Ideal Stocking Stuffer",
         input.as_str(),
-        &[&|i| part(i, true), &|i| part(i, false)],
+        &|i| part(i, true),
+        &|i| part(i, false),
     )
 }
 

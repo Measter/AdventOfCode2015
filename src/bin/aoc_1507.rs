@@ -1,4 +1,3 @@
-use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Result};
 
 use std::collections::HashMap;
@@ -268,10 +267,11 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1507.txt")?;
 
-    run(
+    aoc_lib::run(
         "Day 7: Some Assembly Required",
         input.as_str(),
-        &[&part_1, &part_2],
+        &part_1,
+        &part_2,
     )
 }
 

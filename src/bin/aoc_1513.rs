@@ -1,6 +1,5 @@
 #![allow(clippy::unnecessary_wraps)]
 
-use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Result};
 use itertools::Itertools;
 
@@ -85,12 +84,11 @@ fn main() -> Result<()> {
         part2_table.happiness.insert((p, "Self"), 0);
     }
 
-    run(
+    aoc_lib::run(
         "Day 13: Knights of the Dinner Table",
         (&part1_table, &part2_table),
-        &[&|(table, _)| table.biggest_happiness(), &|(_, table)| {
-            table.biggest_happiness()
-        }],
+        &|(table, _)| table.biggest_happiness(),
+        &|(_, table)| table.biggest_happiness(),
     )
 }
 

@@ -1,6 +1,5 @@
 #![allow(clippy::unnecessary_wraps)]
 
-use advent_of_code_2015::run;
 use color_eyre::eyre::{eyre, Result};
 
 use std::collections::{HashMap, HashSet};
@@ -56,10 +55,11 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1519.txt")?;
     let (mappings, input) = parse_input(&input)?;
 
-    run(
+    aoc_lib::run(
         "Day 19: Medicine for Rudolph",
         (&mappings, input),
-        &[&|(m, i)| part1(m, i)],
+        &|(m, i)| part1(m, i),
+        &|_| Ok("Not implemented"),
     )
 }
 

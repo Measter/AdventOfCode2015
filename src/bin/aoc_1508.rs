@@ -1,4 +1,3 @@
-use advent_of_code_2015::run;
 use color_eyre::eyre::Result;
 
 fn part1(input: &str) -> (usize, usize) {
@@ -69,25 +68,23 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1508.txt")?;
 
-    run(
+    aoc_lib::run(
         "Day 8: Matchsticks",
         input.as_str(),
-        &[
-            &|i| {
-                Ok(i.lines()
-                    .map(str::trim)
-                    .map(part1)
-                    .map(|(code, rendered)| code - rendered)
-                    .sum::<usize>())
-            },
-            &|i| {
-                Ok(i.lines()
-                    .map(str::trim)
-                    .map(part2)
-                    .map(|(code, rendered)| rendered - code)
-                    .sum())
-            },
-        ],
+        &|i| {
+            Ok(i.lines()
+                .map(str::trim)
+                .map(part1)
+                .map(|(code, rendered)| code - rendered)
+                .sum::<usize>())
+        },
+        &|i| {
+            Ok(i.lines()
+                .map(str::trim)
+                .map(part2)
+                .map(|(code, rendered)| rendered - code)
+                .sum::<usize>())
+        },
     )
 }
 

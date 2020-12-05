@@ -1,6 +1,5 @@
 #![allow(clippy::unnecessary_wraps)]
 
-use advent_of_code_2015::run;
 use color_eyre::eyre::Result;
 use itertools::Itertools;
 
@@ -80,10 +79,11 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1509.txt")?;
     let map = Map::parse(&input)?;
 
-    run(
+    aoc_lib::run(
         "Day 9: All in a Single Night",
         &map,
-        &[&Map::shortest, &Map::longest],
+        &Map::shortest,
+        &Map::longest,
     )
 }
 

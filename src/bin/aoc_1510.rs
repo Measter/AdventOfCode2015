@@ -1,4 +1,3 @@
-use advent_of_code_2015::run;
 use color_eyre::eyre::Result;
 use itertools::Itertools;
 
@@ -25,12 +24,11 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1510.txt")?;
 
-    run(
+    aoc_lib::run(
         "Day 10: Elves Look, Elves Say",
         input.as_str(),
-        &[&|i| Ok(looksay(i.to_owned(), 40).len()), &|i| {
-            Ok(looksay(i.to_owned(), 50).len())
-        }],
+        &|i| Ok(looksay(i.to_owned(), 40).len()),
+        &|i| Ok(looksay(i.to_owned(), 50).len()),
     )
 }
 
