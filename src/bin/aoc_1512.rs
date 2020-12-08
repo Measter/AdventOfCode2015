@@ -1,5 +1,9 @@
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::{Report, Result};
 use serde_json::Value;
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 fn part1(input: &Value) -> Result<i64> {
     Ok(match input {
@@ -42,7 +46,13 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1512.txt")?;
     let values: Value = serde_json::from_str(&input)?;
 
-    aoc_lib::run("Day 12: JSAbacusFramework.io", &values, &part1, &part2)
+    aoc_lib::run(
+        &ALLOC,
+        "Day 12: JSAbacusFramework.io",
+        &values,
+        &part1,
+        &part2,
+    )
 }
 
 #[cfg(test)]

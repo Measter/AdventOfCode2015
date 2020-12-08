@@ -1,9 +1,13 @@
 #![allow(clippy::unnecessary_wraps)]
 
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::{eyre, Result};
 use itertools::Itertools;
 
 use std::collections::{BTreeSet, HashMap};
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 #[derive(Debug, PartialEq, Clone)]
 struct People<'a> {
@@ -85,6 +89,7 @@ fn main() -> Result<()> {
     }
 
     aoc_lib::run(
+        &ALLOC,
         "Day 13: Knights of the Dinner Table",
         (&part1_table, &part2_table),
         &|(table, _)| table.biggest_happiness(),

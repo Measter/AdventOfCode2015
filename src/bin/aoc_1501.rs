@@ -1,6 +1,10 @@
 #![allow(clippy::unnecessary_wraps)]
 
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::{eyre, Result};
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 fn part1(input: &str) -> Result<i64> {
     Ok(input
@@ -37,7 +41,13 @@ fn main() -> Result<()> {
 
     let input = std::fs::read_to_string("inputs/aoc_1501.txt")?;
 
-    aoc_lib::run("Day 1: Not Quite Lisp", input.as_str(), &part1, &part2)
+    aoc_lib::run(
+        &ALLOC,
+        "Day 1: Not Quite Lisp",
+        input.as_str(),
+        &part1,
+        &part2,
+    )
 }
 
 #[cfg(test)]

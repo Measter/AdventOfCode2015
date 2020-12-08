@@ -1,6 +1,10 @@
 #![allow(clippy::unnecessary_wraps)]
 
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::{eyre, Result};
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 enum LightState {
@@ -141,6 +145,7 @@ fn main() -> Result<()> {
     let light_array = LightArray::parse(&input).unwrap();
 
     aoc_lib::run(
+        &ALLOC,
         "Day 18: Like a GIF For Your Yard",
         &light_array,
         &|l| run_gol(l.clone(), false),

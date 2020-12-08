@@ -1,10 +1,13 @@
 #![allow(clippy::unnecessary_wraps)]
 
-use aoc_lib::parsers::split_pair;
+use aoc_lib::{parsers::split_pair, TracingAlloc};
 use color_eyre::eyre::{eyre, Result};
 use itertools::Itertools;
 
 use std::iter;
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 #[derive(Debug)]
 struct Equipment {
@@ -205,6 +208,7 @@ fn main() -> Result<()> {
     let rings = Equipment::get_rings();
 
     aoc_lib::run(
+        &ALLOC,
         "Day 21: RPG Simulator 20XX",
         (&boss, &weapons, &armor, &rings),
         &|(b, w, a, r)| part1(b, w, a, r),

@@ -1,4 +1,8 @@
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::Result;
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 fn part1(input: &str) -> (usize, usize) {
     let mut rendered = String::with_capacity(input.len());
@@ -69,6 +73,7 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1508.txt")?;
 
     aoc_lib::run(
+        &ALLOC,
         "Day 8: Matchsticks",
         input.as_str(),
         &|i| {

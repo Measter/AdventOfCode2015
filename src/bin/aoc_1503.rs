@@ -1,8 +1,12 @@
 #![allow(clippy::unnecessary_wraps)]
 
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::{eyre, Report, Result};
 
 use std::collections::HashSet;
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 struct MoveList(Vec<Move>);
 
@@ -80,6 +84,7 @@ fn main() -> Result<()> {
     let moves: MoveList = input.parse()?;
 
     aoc_lib::run(
+        &ALLOC,
         "Day 3: Perfectly Spherical Houses in a Vacuum",
         &moves,
         &part1,

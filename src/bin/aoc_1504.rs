@@ -1,6 +1,10 @@
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::{eyre, Result};
 
 use std::fmt::Write;
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 fn part(input: &str, is_five: bool) -> Result<u32> {
     let mut buf = String::new();
@@ -31,6 +35,7 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1504.txt")?;
 
     aoc_lib::run(
+        &ALLOC,
         "Day 4: The Ideal Stocking Stuffer",
         input.as_str(),
         &|i| part(i, true),

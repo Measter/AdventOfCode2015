@@ -1,7 +1,10 @@
 #![allow(clippy::unnecessary_wraps)]
 
-use aoc_lib::parsers::signed_number;
+use aoc_lib::{parsers::signed_number, TracingAlloc};
 use color_eyre::eyre::{eyre, Result};
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 #[derive(Debug, PartialEq)]
 struct Ingredient {
@@ -180,6 +183,7 @@ fn main() -> Result<()> {
         .unwrap();
 
     aoc_lib::run(
+        &ALLOC,
         "Day 15: Science for Hungry People",
         &ingredients,
         &|i| cookie_search(i, 100, |_| true),

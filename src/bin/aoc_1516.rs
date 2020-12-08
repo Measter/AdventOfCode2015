@@ -1,8 +1,11 @@
 #![allow(clippy::clippy::ptr_arg)]
 
-use aoc_lib::parsers::unsigned_number;
+use aoc_lib::{parsers::unsigned_number, TracingAlloc};
 use color_eyre::eyre::{eyre, Result};
 use nom::bytes::complete::take_while1;
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 #[derive(Debug, Default, PartialEq)]
 struct Sue {
@@ -107,7 +110,7 @@ fn main() -> Result<()> {
         .map(Sue::parse)
         .collect::<Result<_>>()?;
 
-    aoc_lib::run("Day 16: Aunt Sue", &sues, &part1, &part2)
+    aoc_lib::run(&ALLOC, "Day 16: Aunt Sue", &sues, &part1, &part2)
 }
 
 #[cfg(test)]

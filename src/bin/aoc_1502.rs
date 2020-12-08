@@ -1,4 +1,8 @@
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::{eyre, Report, Result};
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 #[derive(Debug, Copy, Clone)]
 struct Box {
@@ -75,6 +79,7 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1502.txt")?;
 
     aoc_lib::run(
+        &ALLOC,
         "Day 2: I Was Told There Would Be No Math",
         input.as_str(),
         &|i| part(i, &Box::paper),

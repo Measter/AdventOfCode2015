@@ -1,7 +1,11 @@
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::{eyre, Result};
 use itertools::Itertools;
 
 use std::num::ParseIntError;
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 fn part1(containers: &[u32], total_eggnog: u32) -> Result<usize> {
     let mut num_permutations = 0;
@@ -48,6 +52,7 @@ fn main() -> Result<()> {
         .collect::<Result<_, ParseIntError>>()?;
 
     aoc_lib::run(
+        &ALLOC,
         "Day 17: No Such Thing as Too Much",
         &containers,
         &|c| part1(c, 150),

@@ -1,7 +1,11 @@
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::Result;
 use itertools::Itertools;
 
 use std::fmt::Write;
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 fn looksay(input: String, iterations: usize) -> String {
     let mut buf_a = input;
@@ -25,6 +29,7 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1510.txt")?;
 
     aoc_lib::run(
+        &ALLOC,
         "Day 10: Elves Look, Elves Say",
         input.as_str(),
         &|i| Ok(looksay(i.to_owned(), 40).len()),

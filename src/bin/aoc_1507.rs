@@ -1,6 +1,10 @@
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::{eyre, Result};
 
 use std::collections::HashMap;
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 #[derive(Debug, PartialEq)]
 enum Input {
@@ -268,6 +272,7 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1507.txt")?;
 
     aoc_lib::run(
+        &ALLOC,
         "Day 7: Some Assembly Required",
         input.as_str(),
         &part_1,

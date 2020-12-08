@@ -2,7 +2,11 @@
 
 use std::ops::{Index, IndexMut};
 
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::{eyre, Context, Result};
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 const SEPARATORS: &[char] = &[' ', ','];
 const OFFSET_PREFIX: &[char] = &['-', '+'];
@@ -159,6 +163,7 @@ fn main() -> Result<()> {
         .collect::<Result<_>>()?;
 
     aoc_lib::run(
+        &ALLOC,
         "Day 23: Opening the Turing Lock",
         &instructions,
         &|instrs| {

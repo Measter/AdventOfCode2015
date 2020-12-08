@@ -1,4 +1,8 @@
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::{eyre, Result};
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 fn part1(num_presents: usize) -> Result<usize> {
     let mut houses = vec![0; (num_presents / 10) + 1];
@@ -41,6 +45,7 @@ fn main() -> Result<()> {
     let input = input.trim().parse::<usize>()?;
 
     aoc_lib::run(
+        &ALLOC,
         "Day 20: Infinite Elves and Infinite Houses",
         input,
         &|i| part1(i),

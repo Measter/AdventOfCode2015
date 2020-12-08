@@ -1,5 +1,8 @@
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::{eyre, Result};
 
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 #[derive(Debug, PartialEq)]
 struct Reindeer {
     name: String,
@@ -129,6 +132,7 @@ fn main() -> Result<()> {
         .unwrap();
 
     aoc_lib::run(
+        &ALLOC,
         "Day 14: Reindeer Olympics",
         &reindeer,
         &|r| {

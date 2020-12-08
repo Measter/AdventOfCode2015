@@ -1,8 +1,12 @@
 #![allow(clippy::unnecessary_wraps)]
 
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::{eyre, Result};
 
 use std::collections::{HashMap, HashSet};
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 fn parse_input(input: &str) -> Result<(HashMap<&str, Vec<&str>>, &str)> {
     let mut mappings = HashMap::new();
@@ -56,6 +60,7 @@ fn main() -> Result<()> {
     let (mappings, input) = parse_input(&input)?;
 
     aoc_lib::run(
+        &ALLOC,
         "Day 19: Medicine for Rudolph",
         (&mappings, input),
         &|(m, i)| part1(m, i),

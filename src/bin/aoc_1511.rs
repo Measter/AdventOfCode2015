@@ -1,17 +1,22 @@
 #![allow(clippy::unnecessary_wraps)]
 
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::Result;
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 fn banned_char(c: char) -> bool {
     c == 'i' || c == 'o' || c == 'l'
 }
 
-fn part1_validity(pswd: &str) -> bool {
+fn part1_validity(pswd: &str, char_buffer: &mut Vec<char>) -> bool {
     let has_banned_letters = pswd.matches(banned_char).count() != 0;
 
-    let chars: Vec<_> = pswd.chars().collect();
+    char_buffer.clear();
+    char_buffer.extend(pswd.chars());
 
-    let has_triplet = chars
+    let has_triplet = char_buffer
         .windows(3)
         .filter(|triplet| {
             matches!(triplet, [a, b, c] if {
@@ -27,7 +32,7 @@ fn part1_validity(pswd: &str) -> bool {
 
     let mut seen_pairs = 0;
 
-    let mut windows = chars.windows(2);
+    let mut windows = char_buffer.windows(2);
     while let Some([a, b]) = windows.next() {
         if a != b {
             continue;
@@ -49,6 +54,7 @@ fn part1_next_password(pswd: &str) -> Result<String> {
         .fold(0, |acc, b| acc * 26 + b);
 
     let mut next_buf = String::with_capacity(8);
+    let mut char_buffer = Vec::new();
 
     'outer: for mut i in (decoded + 1)..=max_num {
         next_buf.clear();
@@ -66,7 +72,7 @@ fn part1_next_password(pswd: &str) -> Result<String> {
         // Safe because we know we're only dealing with ascii.
         unsafe { next_buf.as_bytes_mut().reverse() };
 
-        if part1_validity(&next_buf) {
+        if part1_validity(&next_buf, &mut char_buffer) {
             break;
         }
     }
@@ -80,6 +86,7 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1511.txt")?;
 
     aoc_lib::run(
+        &ALLOC,
         "Day 11: Corporate Policy",
         input.as_str(),
         &part1_next_password,

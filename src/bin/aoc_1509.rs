@@ -1,9 +1,13 @@
 #![allow(clippy::unnecessary_wraps)]
 
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::Result;
 use itertools::Itertools;
 
 use std::collections::{HashMap, HashSet};
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 #[derive(Debug, PartialEq)]
 struct Map<'a> {
@@ -80,6 +84,7 @@ fn main() -> Result<()> {
     let map = Map::parse(&input)?;
 
     aoc_lib::run(
+        &ALLOC,
         "Day 9: All in a Single Night",
         &map,
         &Map::shortest,

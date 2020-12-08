@@ -1,4 +1,8 @@
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::Result;
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 fn part1(input: &str) -> bool {
     let vowels: &[char] = &['a', 'e', 'i', 'o', 'u'];
@@ -50,6 +54,7 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("inputs/aoc_1505.txt")?;
 
     aoc_lib::run(
+        &ALLOC,
         "Day 5: Doesn't He Have Intern-Elves For This?",
         input.as_str(),
         &|i| Ok(i.lines().map(str::trim).map(part1).filter(|i| *i).count()),

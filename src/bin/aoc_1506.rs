@@ -1,6 +1,10 @@
 #![allow(clippy::unnecessary_wraps)]
 
+use aoc_lib::TracingAlloc;
 use color_eyre::eyre::{eyre, Result};
+
+#[global_allocator]
+static ALLOC: TracingAlloc = TracingAlloc::new();
 
 #[derive(Debug, Clone, PartialEq)]
 struct Instruction {
@@ -117,6 +121,7 @@ fn main() -> Result<()> {
         .collect::<Result<_>>()?;
 
     aoc_lib::run(
+        &ALLOC,
         "Day 6: Probably a Fire Hazard",
         &instructions,
         &|i| part(i, &Operation::apply_part1),
