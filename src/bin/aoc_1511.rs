@@ -110,8 +110,10 @@ mod tests_1511 {
             ("ghjaabcc", true),
         ];
 
+        let mut char_buf = Vec::new();
+
         for &(pswd, expected) in &tests {
-            assert_eq!(part1_validity(pswd), expected, "{}", pswd);
+            assert_eq!(part1_validity(pswd, &mut char_buf), expected, "{}", pswd);
         }
     }
 
