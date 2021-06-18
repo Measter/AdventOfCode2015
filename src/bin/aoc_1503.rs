@@ -80,16 +80,18 @@ fn part2(input: &MoveList) -> Result<usize> {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1503.txt")?;
-    let moves: MoveList = input.parse()?;
+    let input = aoc_lib::input(2015, 3).open()?;
 
-    aoc_lib::run(
-        &ALLOC,
+    let (moves, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || input.parse())?;
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part1(&moves))?;
+    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || part2(&moves))?;
+
+    aoc_lib::display_results(
         "Day 3: Perfectly Spherical Houses in a Vacuum",
-        &moves,
-        &part1,
-        &part2,
-    )
+        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

@@ -174,21 +174,28 @@ fn cookie_search(
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1515.txt")?;
-    let ingredients: Vec<_> = input
-        .lines()
-        .map(str::trim)
-        .map(Ingredient::parse)
-        .collect::<Result<_>>()
-        .unwrap();
+    let input = aoc_lib::input(2015, 15).open()?;
+    let (ingredients, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || {
+        input
+            .lines()
+            .map(str::trim)
+            .map(Ingredient::parse)
+            .collect::<Result<Vec<_>>>()
+    })?;
 
-    aoc_lib::run(
-        &ALLOC,
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || {
+        cookie_search(&ingredients, 100, |_| true)
+    })?;
+    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || {
+        cookie_search(&ingredients, 100, |c| c == 500)
+    })?;
+
+    aoc_lib::display_results(
         "Day 15: Science for Hungry People",
-        &ingredients,
-        &|i| cookie_search(i, 100, |_| true),
-        &|i| cookie_search(i, 100, |c| c == 500),
-    )
+        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

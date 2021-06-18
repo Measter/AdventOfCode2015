@@ -41,16 +41,18 @@ fn part2(num_presents: usize) -> Result<usize> {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1520.txt")?;
+    let input = aoc_lib::input(2015, 20).open()?;
     let input = input.trim().parse::<usize>()?;
 
-    aoc_lib::run(
-        &ALLOC,
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part1(input))?;
+    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || part2(input))?;
+
+    aoc_lib::display_results(
         "Day 20: Infinite Elves and Infinite Houses",
-        input,
-        &|i| part1(i),
-        &|i| part2(i),
-    )
+        [(&p1_res, p1_bench), (&p2_res, p2_bench)],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

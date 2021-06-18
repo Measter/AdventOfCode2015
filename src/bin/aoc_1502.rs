@@ -53,8 +53,8 @@ impl std::str::FromStr for Box {
 
         if let (Some(width), Some(height), Some(length)) = parts {
             Ok(Box {
-                height,
                 width,
+                height,
                 length,
             })
         } else {
@@ -63,7 +63,7 @@ impl std::str::FromStr for Box {
     }
 }
 
-fn part(input: &str, f: &dyn Fn(Box) -> u32) -> Result<u32> {
+fn part(input: &str, f: fn(Box) -> u32) -> Result<u32> {
     let mut total = 0;
 
     for b in input.lines().map(str::parse::<Box>) {
@@ -76,15 +76,16 @@ fn part(input: &str, f: &dyn Fn(Box) -> u32) -> Result<u32> {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1502.txt")?;
+    let input = aoc_lib::input(2015, 2).open()?;
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part(&input, Box::paper))?;
+    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || part(&input, Box::ribbon))?;
 
-    aoc_lib::run(
-        &ALLOC,
+    aoc_lib::display_results(
         "Day 2: I Was Told There Would Be No Math",
-        input.as_str(),
-        &|i| part(i, &Box::paper),
-        &|i| part(i, &Box::ribbon),
-    )
+        [(&p1_res, p1_bench), (&p2_res, p2_bench)],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

@@ -56,16 +56,17 @@ fn part1(mappings: &HashMap<&str, Vec<&str>>, input: &str) -> Result<usize> {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1519.txt")?;
-    let (mappings, input) = parse_input(&input)?;
+    let input = aoc_lib::input(2015, 19).open()?;
+    let ((mappings, input), parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || parse_input(&input))?;
 
-    aoc_lib::run(
-        &ALLOC,
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part1(&mappings, &input))?;
+
+    aoc_lib::display_results(
         "Day 19: Medicine for Rudolph",
-        (&mappings, input),
-        &|(m, i)| part1(m, i),
-        &|_| Ok("Not implemented"),
-    )
+        [(&"", parse_bench), (&p1_res, p1_bench)],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

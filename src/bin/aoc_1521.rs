@@ -96,17 +96,17 @@ impl Actor {
         let (_, hp) = lines
             .next()
             .ok_or_else(|| eyre!("Invalid boss input"))
-            .and_then(|l| split_pair(l, ": "))?;
+            .and_then(|l| Ok(split_pair(l, ": ")?))?;
 
         let (_, damage) = lines
             .next()
             .ok_or_else(|| eyre!("Invalid boss input"))
-            .and_then(|l| split_pair(l, ": "))?;
+            .and_then(|l| Ok(split_pair(l, ": ")?))?;
 
         let (_, armor) = lines
             .next()
             .ok_or_else(|| eyre!("Invalid boss input"))
-            .and_then(|l| split_pair(l, ": "))?;
+            .and_then(|l| Ok(split_pair(l, ": ")?))?;
 
         Ok(Actor {
             hp: hp.parse()?,
@@ -200,20 +200,24 @@ fn part2(
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1521.txt")?;
-    let boss = Actor::parse(&input)?;
+    let input = aoc_lib::input(2015, 21).open()?;
+    let (boss, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || Actor::parse(&input))?;
 
     let weapons = Equipment::get_weapons();
     let armor = Equipment::get_armor();
     let rings = Equipment::get_rings();
 
-    aoc_lib::run(
-        &ALLOC,
+    let (p1_res, p1_bench) =
+        aoc_lib::bench(&ALLOC, "Part 1", || part1(&boss, &weapons, &armor, &rings))?;
+    let (p2_res, p2_bench) =
+        aoc_lib::bench(&ALLOC, "Part 2", || part2(&boss, &weapons, &armor, &rings))?;
+
+    aoc_lib::display_results(
         "Day 21: RPG Simulator 20XX",
-        (&boss, &weapons, &armor, &rings),
-        &|(b, w, a, r)| part1(b, w, a, r),
-        &|(b, w, a, r)| part2(b, w, a, r),
-    )
+        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

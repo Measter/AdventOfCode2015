@@ -1,5 +1,3 @@
-#![allow(clippy::clippy::ptr_arg)]
-
 use aoc_lib::{parsers::unsigned_number, TracingAlloc};
 use color_eyre::eyre::{eyre, Result};
 use nom::bytes::complete::take_while1;
@@ -70,7 +68,7 @@ impl std::fmt::Display for Sue {
     }
 }
 
-fn part1(sues: &Vec<Sue>) -> Result<&Sue> {
+fn part1(sues: &[Sue]) -> Result<&Sue> {
     sues.iter()
         .filter(|s| !matches!(s.children, Some(v) if v != 3))
         .filter(|s| !matches!(s.cats, Some(v) if v != 7))
@@ -85,7 +83,7 @@ fn part1(sues: &Vec<Sue>) -> Result<&Sue> {
         .ok_or_else(|| eyre!("Unable to find result"))
 }
 
-fn part2(sues: &Vec<Sue>) -> Result<&Sue> {
+fn part2(sues: &[Sue]) -> Result<&Sue> {
     sues.iter()
         .filter(|s| !matches!(s.children, Some(v) if v != 3))
         .filter(|s| !matches!(s.cats, Some(v) if v <= 7))
@@ -103,14 +101,24 @@ fn part2(sues: &Vec<Sue>) -> Result<&Sue> {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1516.txt")?;
-    let sues: Vec<_> = input
-        .lines()
-        .map(str::trim)
-        .map(Sue::parse)
-        .collect::<Result<_>>()?;
+    let input = aoc_lib::input(2015, 16).open()?;
+    let (sues, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || {
+        input
+            .lines()
+            .map(str::trim)
+            .map(Sue::parse)
+            .collect::<Result<Vec<_>>>()
+    })?;
 
-    aoc_lib::run(&ALLOC, "Day 16: Aunt Sue", &sues, &part1, &part2)
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part1(&sues))?;
+    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || part2(&sues))?;
+
+    aoc_lib::display_results(
+        "Day 16: Aunt Sue",
+        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

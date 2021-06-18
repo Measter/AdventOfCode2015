@@ -26,15 +26,20 @@ fn looksay(input: String, iterations: usize) -> String {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1510.txt")?;
+    let input = aoc_lib::input(2015, 10).open()?;
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || {
+        Ok::<_, ()>(looksay(input.clone(), 40).len())
+    })?;
+    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || {
+        Ok::<_, ()>(looksay(input.clone(), 50).len())
+    })?;
 
-    aoc_lib::run(
-        &ALLOC,
+    aoc_lib::display_results(
         "Day 10: Elves Look, Elves Say",
-        input.as_str(),
-        &|i| Ok(looksay(i.to_owned(), 40).len()),
-        &|i| Ok(looksay(i.to_owned(), 50).len()),
-    )
+        [(&p1_res, p1_bench), (&p2_res, p2_bench)],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

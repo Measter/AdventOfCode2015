@@ -13,7 +13,15 @@ fn part1(input: &str) -> bool {
         || input.contains("pq")
         || input.contains("xy");
 
-    let chars: Vec<_> = input.chars().collect();
+    // We know the length is 16 chars.
+    let chars = {
+        let mut chars = ['\0'; 16];
+        chars
+            .iter_mut()
+            .zip(input.chars())
+            .for_each(|(dst, src)| *dst = src);
+        chars
+    };
     let has_double_char = chars
         .windows(2)
         .any(|pair| matches!(pair, [a, b] if a == b));
@@ -22,7 +30,15 @@ fn part1(input: &str) -> bool {
 }
 
 fn part2(input: &str) -> bool {
-    let chars: Vec<_> = input.chars().collect();
+    // We know the length is 16 chars.
+    let chars = {
+        let mut chars = ['\0'; 16];
+        chars
+            .iter_mut()
+            .zip(input.chars())
+            .for_each(|(dst, src)| *dst = src);
+        chars
+    };
 
     let sep_letters = chars
         .windows(3)
@@ -31,15 +47,16 @@ fn part2(input: &str) -> bool {
     let mut has_two_pairs = false;
 
     for (idx, _) in chars.windows(2).enumerate() {
-        let valids = input
-            .match_indices(&input[idx..idx + 2])
-            .filter(|&(m_idx, _)| {
-                let diff = idx.max(m_idx) - idx.min(m_idx);
-                idx != m_idx && diff >= 2
-            })
-            .count();
+        let has_valids =
+            input[idx + 2..]
+                .match_indices(&input[idx..idx + 2])
+                .any(|(mut m_idx, _)| {
+                    m_idx += idx + 2; // Need to account for the offset start of string.
+                    let diff = idx.max(m_idx) - idx.min(m_idx);
+                    idx != m_idx && diff >= 2
+                });
 
-        if valids > 0 {
+        if has_valids {
             has_two_pairs = true;
             break;
         }
@@ -51,15 +68,34 @@ fn part2(input: &str) -> bool {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1505.txt")?;
+    let input = aoc_lib::input(2015, 5).open()?;
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || {
+        Ok::<_, ()>(
+            input
+                .lines()
+                .map(str::trim)
+                .map(part1)
+                .filter(|i| *i)
+                .count(),
+        )
+    })?;
+    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || {
+        Ok::<_, ()>(
+            input
+                .lines()
+                .map(str::trim)
+                .map(part2)
+                .filter(|i| *i)
+                .count(),
+        )
+    })?;
 
-    aoc_lib::run(
-        &ALLOC,
+    aoc_lib::display_results(
         "Day 5: Doesn't He Have Intern-Elves For This?",
-        input.as_str(),
-        &|i| Ok(i.lines().map(str::trim).map(part1).filter(|i| *i).count()),
-        &|i| Ok(i.lines().map(str::trim).map(part2).filter(|i| *i).count()),
-    )
+        [(&p1_res, p1_bench), (&p2_res, p2_bench)],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

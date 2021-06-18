@@ -1,6 +1,6 @@
 #![allow(clippy::unnecessary_wraps)]
 
-use aoc_lib::TracingAlloc;
+use aoc_lib::{misc::ArrWindows, TracingAlloc};
 use color_eyre::eyre::Result;
 
 #[global_allocator]
@@ -16,19 +16,13 @@ fn part1_validity(pswd: &str, char_buffer: &mut Vec<char>) -> bool {
     char_buffer.clear();
     char_buffer.extend(pswd.chars());
 
-    let has_triplet = char_buffer
-        .windows(3)
-        .filter(|triplet| {
-            matches!(triplet, [a, b, c] if {
-                let a = *a as u8;
-                let b = *b as u8;
-                let c = *c as u8;
+    let has_triplet = ArrWindows::new(&char_buffer).any(|&[a, b, c]| {
+        let a = a as u8;
+        let b = b as u8;
+        let c = c as u8;
 
-                a<b && b<c && b-a == 1 && c-a == 2
-            })
-        })
-        .count()
-        > 0;
+        a < b && b < c && b - a == 1 && c - a == 2
+    });
 
     let mut seen_pairs = 0;
 
@@ -39,6 +33,9 @@ fn part1_validity(pswd: &str, char_buffer: &mut Vec<char>) -> bool {
         }
 
         seen_pairs += 1;
+        if seen_pairs == 2 {
+            break;
+        }
         windows.next();
     }
 
@@ -69,7 +66,7 @@ fn part1_next_password(pswd: &str) -> Result<String> {
             next_buf.push(next_char);
         }
 
-        // Safe because we know we're only dealing with ascii.
+        // SAFETY: We know our input is ASCII.
         unsafe { next_buf.as_bytes_mut().reverse() };
 
         if part1_validity(&next_buf, &mut char_buffer) {
@@ -83,15 +80,18 @@ fn part1_next_password(pswd: &str) -> Result<String> {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1511.txt")?;
+    let input = aoc_lib::input(2015, 11).open()?;
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part1_next_password(&input))?;
+    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || {
+        part1_next_password(&input).and_then(|pswd| part1_next_password(&pswd))
+    })?;
 
-    aoc_lib::run(
-        &ALLOC,
+    aoc_lib::display_results(
         "Day 11: Corporate Policy",
-        input.as_str(),
-        &part1_next_password,
-        &|pswd| part1_next_password(pswd).and_then(|pswd| part1_next_password(&*pswd)),
-    )
+        [(&p1_res, p1_bench), (&p2_res, p2_bench)],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

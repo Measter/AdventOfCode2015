@@ -44,20 +44,24 @@ fn part2(containers: &[u32], total_eggnog: u32) -> Result<usize> {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1517.txt")?;
-    let containers: Vec<_> = input
-        .lines()
-        .map(str::trim)
-        .map(str::parse)
-        .collect::<Result<_, ParseIntError>>()?;
+    let input = aoc_lib::input(2015, 17).open()?;
+    let (containers, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || {
+        input
+            .lines()
+            .map(str::trim)
+            .map(str::parse)
+            .collect::<Result<Vec<_>, ParseIntError>>()
+    })?;
 
-    aoc_lib::run(
-        &ALLOC,
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part1(&containers, 150))?;
+    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || part2(&containers, 150))?;
+
+    aoc_lib::display_results(
         "Day 17: No Such Thing as Too Much",
-        &containers,
-        &|c| part1(c, 150),
-        &|c| part2(c, 150),
-    )
+        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

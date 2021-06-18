@@ -89,7 +89,7 @@ impl Operation {
     }
 }
 
-fn part<T: Copy + Default>(input: &[Instruction], f: &dyn Fn(Operation, &mut T)) -> Result<u64>
+fn part<T: Copy + Default>(input: &[Instruction], f: fn(Operation, &mut T)) -> Result<u64>
 where
     u64: From<T>,
 {
@@ -114,19 +114,27 @@ where
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1506.txt")?;
-    let instructions: Vec<_> = input
-        .lines()
-        .map(Instruction::parse)
-        .collect::<Result<_>>()?;
+    let input = aoc_lib::input(2015, 6).open()?;
+    let (instructions, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || {
+        input
+            .lines()
+            .map(Instruction::parse)
+            .collect::<Result<Vec<_>>>()
+    })?;
 
-    aoc_lib::run(
-        &ALLOC,
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || {
+        part(&instructions, Operation::apply_part1)
+    })?;
+    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || {
+        part(&instructions, Operation::apply_part2)
+    })?;
+
+    aoc_lib::display_results(
         "Day 6: Probably a Fire Hazard",
-        &instructions,
-        &|i| part(i, &Operation::apply_part1),
-        &|i| part(i, &Operation::apply_part2),
-    )
+        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

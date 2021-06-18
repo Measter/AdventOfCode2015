@@ -78,8 +78,8 @@ impl<'a> People<'a> {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1513.txt")?;
-    let part1_table = People::parse(&input)?;
+    let input = aoc_lib::input(2015, 13).open()?;
+    let (part1_table, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || People::parse(&input))?;
 
     let mut part2_table = part1_table.clone();
     part2_table.people.push("Self");
@@ -88,13 +88,15 @@ fn main() -> Result<()> {
         part2_table.happiness.insert((p, "Self"), 0);
     }
 
-    aoc_lib::run(
-        &ALLOC,
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part1_table.biggest_happiness())?;
+    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || part2_table.biggest_happiness())?;
+
+    aoc_lib::display_results(
         "Day 13: Knights of the Dinner Table",
-        (&part1_table, &part2_table),
-        &|(table, _)| table.biggest_happiness(),
-        &|(_, table)| table.biggest_happiness(),
-    )
+        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

@@ -70,27 +70,34 @@ fn part2(input: &str) -> (usize, usize) {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1508.txt")?;
-
-    aoc_lib::run(
-        &ALLOC,
-        "Day 8: Matchsticks",
-        input.as_str(),
-        &|i| {
-            Ok(i.lines()
+    let input = aoc_lib::input(2015, 8).open()?;
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || {
+        Ok::<usize, ()>(
+            input
+                .lines()
                 .map(str::trim)
                 .map(part1)
                 .map(|(code, rendered)| code - rendered)
-                .sum::<usize>())
-        },
-        &|i| {
-            Ok(i.lines()
+                .sum(),
+        )
+    })?;
+    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || {
+        Ok::<usize, ()>(
+            input
+                .lines()
                 .map(str::trim)
                 .map(part2)
                 .map(|(code, rendered)| rendered - code)
-                .sum::<usize>())
-        },
-    )
+                .sum(),
+        )
+    })?;
+
+    aoc_lib::display_results(
+        "Day 8: Matchsticks",
+        [(&p1_res, p1_bench), (&p2_res, p2_bench)],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

@@ -123,26 +123,32 @@ fn part2(reindeer: &[Reindeer], total_time: u32) -> (&Reindeer, u32) {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1514.txt")?;
-    let reindeer: Vec<_> = input
-        .lines()
-        .map(str::trim)
-        .map(Reindeer::parse)
-        .collect::<Result<_, _>>()
-        .unwrap();
+    let input = aoc_lib::input(2015, 14).open()?;
+    let (reindeer, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || {
+        input
+            .lines()
+            .map(str::trim)
+            .map(Reindeer::parse)
+            .collect::<Result<Vec<_>, _>>()
+    })?;
 
-    aoc_lib::run(
-        &ALLOC,
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || {
+        reindeer
+            .iter()
+            .map(|r| r.distance(2503))
+            .max()
+            .ok_or_else(|| eyre!("No result found"))
+    })?;
+
+    let (p2_res, p2_bench) =
+        aoc_lib::bench(&ALLOC, "Part 2", || Ok::<_, ()>(part2(&reindeer, 2503).1))?;
+
+    aoc_lib::display_results(
         "Day 14: Reindeer Olympics",
-        &reindeer,
-        &|r| {
-            r.iter()
-                .map(|r| r.distance(2503))
-                .max()
-                .ok_or_else(|| eyre!("No result found"))
-        },
-        &|r| Ok(part2(r, 2503).1),
-    )
+        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

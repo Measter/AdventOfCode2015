@@ -41,8 +41,8 @@ impl<'a> Map<'a> {
         }
 
         Ok(Map {
-            locations,
             distances,
+            locations,
         })
     }
 
@@ -80,16 +80,22 @@ impl<'a> Map<'a> {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1509.txt")?;
-    let map = Map::parse(&input)?;
+    let input = aoc_lib::input(2015, 9).open()?;
+    let (map, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || Map::parse(&input))?;
 
-    aoc_lib::run(
-        &ALLOC,
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || Ok::<_, ()>(Map::shortest(&map)))?;
+    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || Ok::<_, ()>(Map::longest(&map)))?;
+
+    aoc_lib::display_results(
         "Day 9: All in a Single Night",
-        &map,
-        &Map::shortest,
-        &Map::longest,
-    )
+        [
+            (&"", parse_bench),
+            (&p1_res?, p1_bench),
+            (&p2_res?, p2_bench),
+        ],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

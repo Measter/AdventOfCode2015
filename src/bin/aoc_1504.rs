@@ -32,15 +32,16 @@ fn part(input: &str, is_five: bool) -> Result<u32> {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1504.txt")?;
+    let input = aoc_lib::input(2015, 4).open()?;
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part(&input, true))?;
+    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || part(&input, false))?;
 
-    aoc_lib::run(
-        &ALLOC,
+    aoc_lib::display_results(
         "Day 4: The Ideal Stocking Stuffer",
-        input.as_str(),
-        &|i| part(i, true),
-        &|i| part(i, false),
-    )
+        [(&p1_res, p1_bench), (&p2_res, p2_bench)],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]

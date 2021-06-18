@@ -6,61 +6,61 @@ use std::collections::HashMap;
 #[global_allocator]
 static ALLOC: TracingAlloc = TracingAlloc::new();
 
-#[derive(Debug, PartialEq)]
-enum Input {
+#[derive(Debug, PartialEq, Clone, Copy)]
+enum Input<'a> {
     Number(u16),
-    Wire(String),
+    Wire(&'a str),
 }
 
-#[derive(Debug, PartialEq)]
-enum Component {
+#[derive(Debug, PartialEq, Clone, Copy)]
+enum Component<'a> {
     Const {
-        input: Input,
-        output: String,
+        input: Input<'a>,
+        output: &'a str,
     },
     And {
-        input_a: Input,
-        input_b: Input,
-        output: String,
+        input_a: Input<'a>,
+        input_b: Input<'a>,
+        output: &'a str,
     },
     Or {
-        input_a: Input,
-        input_b: Input,
-        output: String,
+        input_a: Input<'a>,
+        input_b: Input<'a>,
+        output: &'a str,
     },
     LShift {
-        input_a: Input,
-        input_b: Input,
-        output: String,
+        input_a: Input<'a>,
+        input_b: Input<'a>,
+        output: &'a str,
     },
     RShift {
-        input_a: Input,
-        input_b: Input,
-        output: String,
+        input_a: Input<'a>,
+        input_b: Input<'a>,
+        output: &'a str,
     },
     Not {
-        input: Input,
-        output: String,
+        input: Input<'a>,
+        output: &'a str,
     },
 }
 
-#[derive(Debug, PartialEq)]
-struct Circuit {
-    wires: HashMap<String, Option<u16>>,
-    components: Vec<Component>,
+#[derive(Debug, PartialEq, Clone)]
+struct Circuit<'a> {
+    wires: HashMap<&'a str, Option<u16>>,
+    components: Vec<Component<'a>>,
 }
 
-impl Circuit {
-    fn get_wire_val(&self, key: &Input) -> Option<u16> {
+impl<'a> Circuit<'a> {
+    fn get_wire_val(&self, key: Input) -> Option<u16> {
         match key {
-            Input::Number(n) => Some(*n),
+            Input::Number(n) => Some(n),
             Input::Wire(key) => self.wires.get(key).copied().flatten(),
         }
     }
 
     fn evaluate(&mut self, mut exit: impl FnMut(&Self) -> bool) {
         while exit(self) {
-            for comp in &self.components {
+            for &comp in &self.components {
                 use Component::*;
                 match comp {
                     Const { input, output } => {
@@ -139,7 +139,7 @@ impl Circuit {
         }
     }
 
-    fn parse_circuit(input: &str) -> nom::IResult<&str, Circuit> {
+    fn parse_circuit(input: &'a str) -> Result<Circuit<'a>> {
         use nom::{
             branch::alt,
             bytes::complete::{tag, take_till1, take_while1},
@@ -150,10 +150,13 @@ impl Circuit {
         let mut components = Vec::new();
 
         for line in input.lines().map(str::trim) {
-            let (_, (component, output)) =
-                separated_pair(take_till1(|c| c == '-'), tag("->"), take_while1(|_| true))(line)?;
+            let (_, (component, output)) = separated_pair::<_, _, _, _, (), _, _, _>(
+                take_till1(|c| c == '-'),
+                tag("->"),
+                take_while1(|_| true),
+            )(line)?;
 
-            let (_, component) = alt((
+            let (_, component) = alt::<_, _, (), _>((
                 tuple((
                     take_till1(|c| c == ' '),
                     tag(" AND "),
@@ -178,15 +181,15 @@ impl Circuit {
                 )),
             ))(component.trim())?;
 
-            let output = output.trim().to_owned();
-            wires.entry(output.clone()).or_default();
+            let output = output.trim();
+            wires.entry(output).or_default();
 
-            let mut parse_input = |input: &str| {
+            let mut parse_input = |input: &'a str| {
                 if let Ok(c) = input.parse() {
                     Input::Number(c)
                 } else {
-                    wires.entry(input.to_owned()).or_default();
-                    Input::Wire(input.to_owned())
+                    wires.entry(input).or_default();
+                    Input::Wire(input)
                 }
             };
 
@@ -225,13 +228,11 @@ impl Circuit {
             components.push(component);
         }
 
-        Ok(("", Circuit { wires, components }))
+        Ok(Circuit { wires, components })
     }
 }
 
-fn part_1(input: &str) -> Result<u16> {
-    let (_, mut circuit) =
-        Circuit::parse_circuit(&input).map_err(|e| eyre!("Parse Error: {}", e))?;
+fn part_1(mut circuit: Circuit) -> Result<u16> {
     let mut counter = 0;
     circuit.evaluate(|c| {
         counter += 1;
@@ -246,10 +247,7 @@ fn part_1(input: &str) -> Result<u16> {
         .ok_or_else(|| eyre!("Wire not found: a"))
 }
 
-fn part_2(input: &str) -> Result<u16> {
-    let (_, mut circuit) =
-        Circuit::parse_circuit(&input).map_err(|e| eyre!("Parse Error: {}", e))?;
-
+fn part_2(mut circuit: Circuit) -> Result<u16> {
     *circuit.wires.get_mut("b").unwrap() = Some(46065);
 
     let mut counter = 0;
@@ -269,15 +267,19 @@ fn part_2(input: &str) -> Result<u16> {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1507.txt")?;
+    let input = aoc_lib::input(2015, 7).open()?;
+    let (circuit, parse_bench) =
+        aoc_lib::bench(&ALLOC, "Parse", || Circuit::parse_circuit(&input))?;
 
-    aoc_lib::run(
-        &ALLOC,
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part_1(circuit.clone()))?;
+    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || part_2(circuit.clone()))?;
+
+    aoc_lib::display_results(
         "Day 7: Some Assembly Required",
-        input.as_str(),
-        &part_1,
-        &part_2,
-    )
+        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
+    );
+
+    Ok(())
 }
 
 #[cfg(test)]
@@ -296,20 +298,20 @@ mod tests_1507 {
         NOT y -> i";
 
         let expected: HashMap<_, _> = [
-            ("d".to_owned(), Some(72)),
-            ("e".to_owned(), Some(507)),
-            ("f".to_owned(), Some(492)),
-            ("g".to_owned(), Some(114)),
-            ("h".to_owned(), Some(65412)),
-            ("i".to_owned(), Some(65079)),
-            ("x".to_owned(), Some(123)),
-            ("y".to_owned(), Some(456)),
+            ("d", Some(72)),
+            ("e", Some(507)),
+            ("f", Some(492)),
+            ("g", Some(114)),
+            ("h", Some(65412)),
+            ("i", Some(65079)),
+            ("x", Some(123)),
+            ("y", Some(456)),
         ]
         .iter()
         .cloned()
         .collect();
 
-        let (_, mut circuit) = Circuit::parse_circuit(circuit_str).unwrap();
+        let mut circuit = Circuit::parse_circuit(circuit_str).unwrap();
 
         let mut counter = 0;
         circuit.evaluate(|c| {

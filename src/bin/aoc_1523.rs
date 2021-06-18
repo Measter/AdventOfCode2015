@@ -155,31 +155,33 @@ impl Computer {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = std::fs::read_to_string("inputs/aoc_1523.txt")?;
-    let instructions: Vec<_> = input
-        .lines()
-        .map(str::trim)
-        .map(Instruction::parse)
-        .collect::<Result<_>>()?;
+    let input = aoc_lib::input(2015, 23).open()?;
+    let (instructions, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || {
+        input
+            .lines()
+            .map(str::trim)
+            .map(Instruction::parse)
+            .collect::<Result<Vec<_>>>()
+    })?;
 
-    aoc_lib::run(
-        &ALLOC,
+    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || {
+        let mut computer = Computer::default();
+        computer.run_program(&instructions);
+        Ok::<_, ()>(computer.registers.b)
+    })?;
+    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || {
+        let mut computer = Computer::default();
+        computer.registers.a = 1;
+        computer.run_program(&instructions);
+        Ok::<_, ()>(computer.registers.b)
+    })?;
+
+    aoc_lib::display_results(
         "Day 23: Opening the Turing Lock",
-        &instructions,
-        &|instrs| {
-            let mut computer = Computer::default();
-            computer.run_program(instrs);
+        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
+    );
 
-            Ok(computer.registers.b)
-        },
-        &|instrs| {
-            let mut computer = Computer::default();
-            computer.registers.a = 1;
-            computer.run_program(instrs);
-
-            Ok(computer.registers.b)
-        },
-    )
+    Ok(())
 }
 
 #[cfg(test)]
