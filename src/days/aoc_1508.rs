@@ -1,8 +1,36 @@
-use aoc_lib::TracingAlloc;
-use color_eyre::eyre::Result;
+use aoc_lib::{day, Bench, BenchResult};
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 8: "Matchsticks"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| {
+        Ok::<usize, usize>(
+            input
+                .lines()
+                .map(str::trim)
+                .map(part1)
+                .map(|(code, rendered)| code - rendered)
+                .sum(),
+        )
+    })
+}
+
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| {
+        Ok::<usize, usize>(
+            input
+                .lines()
+                .map(str::trim)
+                .map(part2)
+                .map(|(code, rendered)| rendered - code)
+                .sum(),
+        )
+    })
+}
 
 fn part1(input: &str) -> (usize, usize) {
     let mut rendered = String::with_capacity(input.len());
@@ -65,39 +93,6 @@ fn part2(input: &str) -> (usize, usize) {
     rendered.push('"');
 
     (input.len(), rendered.len())
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 8).open()?;
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || {
-        Ok::<usize, ()>(
-            input
-                .lines()
-                .map(str::trim)
-                .map(part1)
-                .map(|(code, rendered)| code - rendered)
-                .sum(),
-        )
-    })?;
-    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || {
-        Ok::<usize, ()>(
-            input
-                .lines()
-                .map(str::trim)
-                .map(part2)
-                .map(|(code, rendered)| rendered - code)
-                .sum(),
-        )
-    })?;
-
-    aoc_lib::display_results(
-        "Day 8: Matchsticks",
-        [(&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

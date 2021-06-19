@@ -1,11 +1,36 @@
-use aoc_lib::TracingAlloc;
+use aoc_lib::{day, Bench, BenchError, BenchResult};
 use color_eyre::eyre::{eyre, Result};
 use itertools::Itertools;
 
 use std::num::ParseIntError;
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 17: "No Such Thing as Too Much"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    let containers: Vec<_> = input
+        .lines()
+        .map(str::trim)
+        .map(str::parse)
+        .collect::<Result<_, ParseIntError>>()
+        .map_err(|e| BenchError::UserError(e.into()))?;
+
+    b.bench(|| part1(&containers, 150))
+}
+
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    let containers: Vec<_> = input
+        .lines()
+        .map(str::trim)
+        .map(str::parse)
+        .collect::<Result<_, ParseIntError>>()
+        .map_err(|e| BenchError::UserError(e.into()))?;
+
+    b.bench(|| part2(&containers, 150))
+}
 
 fn part1(containers: &[u32], total_eggnog: u32) -> Result<usize> {
     let mut num_permutations = 0;
@@ -39,29 +64,6 @@ fn part2(containers: &[u32], total_eggnog: u32) -> Result<usize> {
     }
 
     Err(eyre!("No result found"))
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 17).open()?;
-    let (containers, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || {
-        input
-            .lines()
-            .map(str::trim)
-            .map(str::parse)
-            .collect::<Result<Vec<_>, ParseIntError>>()
-    })?;
-
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part1(&containers, 150))?;
-    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || part2(&containers, 150))?;
-
-    aoc_lib::display_results(
-        "Day 17: No Such Thing as Too Much",
-        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

@@ -1,8 +1,40 @@
-use aoc_lib::TracingAlloc;
+use aoc_lib::{day, Bench, BenchError, BenchResult};
 use color_eyre::eyre::{eyre, Result};
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 14: "Reindeer Olympics"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    let reindeer: Vec<_> = input
+        .lines()
+        .map(str::trim)
+        .map(Reindeer::parse)
+        .collect::<Result<_, _>>()
+        .map_err(|e| BenchError::UserError(e.into()))?;
+
+    b.bench(|| {
+        reindeer
+            .iter()
+            .map(|r| r.distance(2503))
+            .max()
+            .ok_or_else(|| eyre!("No result found"))
+    })
+}
+
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    let reindeer: Vec<_> = input
+        .lines()
+        .map(str::trim)
+        .map(Reindeer::parse)
+        .collect::<Result<_, _>>()
+        .map_err(|e| BenchError::UserError(e.into()))?;
+
+    b.bench(|| Ok::<_, u32>(part2(&&reindeer, 2503).1))
+}
+
 #[derive(Debug, PartialEq)]
 struct Reindeer {
     name: String,
@@ -118,37 +150,6 @@ fn part2(reindeer: &[Reindeer], total_time: u32) -> (&Reindeer, u32) {
         .map(|r| (r.reindeer, r.points))
         .max_by_key(|(_, p)| *p)
         .unwrap()
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 14).open()?;
-    let (reindeer, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || {
-        input
-            .lines()
-            .map(str::trim)
-            .map(Reindeer::parse)
-            .collect::<Result<Vec<_>, _>>()
-    })?;
-
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || {
-        reindeer
-            .iter()
-            .map(|r| r.distance(2503))
-            .max()
-            .ok_or_else(|| eyre!("No result found"))
-    })?;
-
-    let (p2_res, p2_bench) =
-        aoc_lib::bench(&ALLOC, "Part 2", || Ok::<_, ()>(part2(&reindeer, 2503).1))?;
-
-    aoc_lib::display_results(
-        "Day 14: Reindeer Olympics",
-        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

@@ -1,10 +1,23 @@
-use aoc_lib::TracingAlloc;
+use aoc_lib::{day, Bench, BenchError, BenchResult};
 use color_eyre::eyre::{eyre, Result};
 
 use std::collections::HashMap;
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 7: "Some Assembly Required"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    let circuit = Circuit::parse_circuit(input).map_err(|e| BenchError::UserError(e.into()))?;
+    b.bench(|| part_1(circuit.clone()))
+}
+
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    let circuit = Circuit::parse_circuit(input).map_err(|e| BenchError::UserError(e.into()))?;
+    b.bench(|| part_2(circuit.clone()))
+}
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Input<'a> {
@@ -262,24 +275,6 @@ fn part_2(mut circuit: Circuit) -> Result<u16> {
         .copied()
         .flatten()
         .ok_or_else(|| eyre!("Wire not found: a"))
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 7).open()?;
-    let (circuit, parse_bench) =
-        aoc_lib::bench(&ALLOC, "Parse", || Circuit::parse_circuit(&input))?;
-
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part_1(circuit.clone()))?;
-    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || part_2(circuit.clone()))?;
-
-    aoc_lib::display_results(
-        "Day 7: Some Assembly Required",
-        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

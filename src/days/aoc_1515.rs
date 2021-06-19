@@ -1,10 +1,33 @@
-#![allow(clippy::unnecessary_wraps)]
-
-use aoc_lib::{parsers::signed_number, TracingAlloc};
+use aoc_lib::{day, parsers::signed_number, Bench, BenchError, BenchResult};
 use color_eyre::eyre::{eyre, Result};
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 15: "Science for Hungry People"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    let ingredients: Vec<_> = input
+        .lines()
+        .map(str::trim)
+        .map(Ingredient::parse)
+        .collect::<Result<_, _>>()
+        .map_err(|e| BenchError::UserError(e.into()))?;
+
+    b.bench(|| cookie_search(&ingredients, 100, |_| true))
+}
+
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    let ingredients: Vec<_> = input
+        .lines()
+        .map(str::trim)
+        .map(Ingredient::parse)
+        .collect::<Result<_, _>>()
+        .map_err(|e| BenchError::UserError(e.into()))?;
+
+    b.bench(|| cookie_search(&ingredients, 100, |c| c == 500))
+}
 
 #[derive(Debug, PartialEq)]
 struct Ingredient {
@@ -121,7 +144,7 @@ fn next_teaspoons(tsps: &mut [u32], max_teaspoons: u32) {
             return;
         }
 
-        let right_teaspoons = right.iter().sum();
+        let right_teaspoons: u32 = right.iter().sum();
         if max_teaspoons != right_teaspoons {
             // We know that the sum of the right side is less than the max, so the remainder should go into
             // the least significant digit.
@@ -169,33 +192,6 @@ fn cookie_search(
     }
 
     Ok(max_score)
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 15).open()?;
-    let (ingredients, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || {
-        input
-            .lines()
-            .map(str::trim)
-            .map(Ingredient::parse)
-            .collect::<Result<Vec<_>>>()
-    })?;
-
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || {
-        cookie_search(&ingredients, 100, |_| true)
-    })?;
-    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || {
-        cookie_search(&ingredients, 100, |c| c == 500)
-    })?;
-
-    aoc_lib::display_results(
-        "Day 15: Science for Hungry People",
-        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

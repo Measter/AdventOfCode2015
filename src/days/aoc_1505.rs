@@ -1,8 +1,36 @@
-use aoc_lib::TracingAlloc;
-use color_eyre::eyre::Result;
+use aoc_lib::{day, Bench, BenchResult};
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 5: "Doesn't He Have Intern-Elves For This?"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| {
+        Ok::<_, u32>(
+            input
+                .lines()
+                .map(str::trim)
+                .map(part1)
+                .filter(|i| *i)
+                .count(),
+        )
+    })
+}
+
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| {
+        Ok::<_, u32>(
+            input
+                .lines()
+                .map(str::trim)
+                .map(part2)
+                .filter(|i| *i)
+                .count(),
+        )
+    })
+}
 
 fn part1(input: &str) -> bool {
     let vowels: &[char] = &['a', 'e', 'i', 'o', 'u'];
@@ -63,39 +91,6 @@ fn part2(input: &str) -> bool {
     }
 
     sep_letters && has_two_pairs
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 5).open()?;
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || {
-        Ok::<_, ()>(
-            input
-                .lines()
-                .map(str::trim)
-                .map(part1)
-                .filter(|i| *i)
-                .count(),
-        )
-    })?;
-    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || {
-        Ok::<_, ()>(
-            input
-                .lines()
-                .map(str::trim)
-                .map(part2)
-                .filter(|i| *i)
-                .count(),
-        )
-    })?;
-
-    aoc_lib::display_results(
-        "Day 5: Doesn't He Have Intern-Elves For This?",
-        [(&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

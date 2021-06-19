@@ -1,9 +1,21 @@
-use aoc_lib::TracingAlloc;
+use aoc_lib::{day, Bench, BenchError, BenchResult};
 use color_eyre::eyre::{Report, Result};
 use serde_json::Value;
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 12: "JSAbacusFramework.io"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    let values: Value = serde_json::from_str(input).map_err(|e| BenchError::UserError(e.into()))?;
+    b.bench(|| part1(&values))
+}
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    let values: Value = serde_json::from_str(input).map_err(|e| BenchError::UserError(e.into()))?;
+    b.bench(|| part2(&values))
+}
 
 fn part1(input: &Value) -> Result<i64> {
     Ok(match input {
@@ -38,23 +50,6 @@ fn part2(input: &Value) -> Result<i64> {
         }
         _ => 0,
     })
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 12).open()?;
-    let values: Value = serde_json::from_str(&input)?;
-
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part1(&values))?;
-    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || part2(&values))?;
-
-    aoc_lib::display_results(
-        "Day 12: JSAbacusFramework.io",
-        [(&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

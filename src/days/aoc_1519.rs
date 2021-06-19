@@ -1,12 +1,18 @@
-#![allow(clippy::unnecessary_wraps)]
-
-use aoc_lib::TracingAlloc;
+use aoc_lib::{day, Bench, BenchError, BenchResult};
 use color_eyre::eyre::{eyre, Result};
 
 use std::collections::{HashMap, HashSet};
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 19: "Medicine for Rudolph"
+    1: run_part1
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    let (mappings, input) = parse_input(input).map_err(|e| BenchError::UserError(e.into()))?;
+
+    b.bench(|| part1(&mappings, &input))
+}
 
 fn parse_input(input: &str) -> Result<(HashMap<&str, Vec<&str>>, &str)> {
     let mut mappings = HashMap::new();
@@ -51,22 +57,6 @@ fn part1(mappings: &HashMap<&str, Vec<&str>>, input: &str) -> Result<usize> {
     }
 
     Ok(seen.len())
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 19).open()?;
-    let ((mappings, input), parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || parse_input(&input))?;
-
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part1(&mappings, &input))?;
-
-    aoc_lib::display_results(
-        "Day 19: Medicine for Rudolph",
-        [(&"", parse_bench), (&p1_res, p1_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

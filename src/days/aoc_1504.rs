@@ -1,10 +1,20 @@
-use aoc_lib::TracingAlloc;
+use aoc_lib::{day, Bench, BenchResult};
 use color_eyre::eyre::{eyre, Result};
 
 use std::fmt::Write;
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 4: "THe Ideal Stocking Stuffer"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| part(input, true))
+}
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| part(input, false))
+}
 
 fn part(input: &str, is_five: bool) -> Result<u32> {
     let mut buf = String::new();
@@ -27,21 +37,6 @@ fn part(input: &str, is_five: bool) -> Result<u32> {
     }
 
     Err(eyre!("Unable to find result"))
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 4).open()?;
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part(&input, true))?;
-    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || part(&input, false))?;
-
-    aoc_lib::display_results(
-        "Day 4: The Ideal Stocking Stuffer",
-        [(&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

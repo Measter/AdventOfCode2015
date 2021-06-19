@@ -1,12 +1,30 @@
-#![allow(clippy::unnecessary_wraps)]
-
-use aoc_lib::TracingAlloc;
-use color_eyre::eyre::{eyre, Report, Result};
+use aoc_lib::{day, BenchError, BenchResult};
+use color_eyre::{
+    eyre::{eyre, Result},
+    Report,
+};
 
 use std::collections::HashSet;
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 3: "Perfectly Spherical Houses in a Vacuum"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: aoc_lib::Bench) -> BenchResult {
+    let moves = input
+        .parse::<MoveList>()
+        .map_err(|e| BenchError::UserError(e.into()))?;
+    b.bench(|| part1(&moves))
+}
+
+fn run_part2(input: &str, b: aoc_lib::Bench) -> BenchResult {
+    let moves = input
+        .parse::<MoveList>()
+        .map_err(|e| BenchError::UserError(e.into()))?;
+    b.bench(|| part2(&moves))
+}
 
 struct MoveList(Vec<Move>);
 
@@ -16,7 +34,6 @@ enum Move {
     East,
     West,
 }
-
 impl std::str::FromStr for MoveList {
     type Err = Report;
 
@@ -75,23 +92,6 @@ fn part2(input: &MoveList) -> Result<usize> {
         .chain(std::iter::once((0, 0))) // Need to add the origin
         .collect::<HashSet<(i32, i32)>>()
         .len())
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 3).open()?;
-
-    let (moves, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || input.parse())?;
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part1(&moves))?;
-    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || part2(&moves))?;
-
-    aoc_lib::display_results(
-        "Day 3: Perfectly Spherical Houses in a Vacuum",
-        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

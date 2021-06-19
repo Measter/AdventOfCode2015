@@ -1,13 +1,23 @@
-#![allow(clippy::unnecessary_wraps)]
-
-use aoc_lib::TracingAlloc;
+use aoc_lib::{day, Bench, BenchError, BenchResult};
 use color_eyre::eyre::Result;
 use itertools::Itertools;
 
 use std::collections::{HashMap, HashSet};
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 9: "All in a Single Night"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    let map = Map::parse(input).map_err(|e| BenchError::UserError(e.into()))?;
+    b.bench(|| Map::shortest(&map))
+}
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    let map = Map::parse(input).map_err(|e| BenchError::UserError(e.into()))?;
+    b.bench(|| Map::longest(&map))
+}
 
 #[derive(Debug, PartialEq)]
 struct Map<'a> {
@@ -77,26 +87,26 @@ impl<'a> Map<'a> {
     }
 }
 
-fn main() -> Result<()> {
-    color_eyre::install()?;
+// fn main() -> Result<()> {
+//     color_eyre::install()?;
 
-    let input = aoc_lib::input(2015, 9).open()?;
-    let (map, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || Map::parse(&input))?;
+//     let input = aoc_lib::input(2015, 9).open()?;
+//     let (map, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || Map::parse(&input))?;
 
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || Ok::<_, ()>(Map::shortest(&map)))?;
-    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || Ok::<_, ()>(Map::longest(&map)))?;
+//     let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || Ok::<_, ()>(Map::shortest(&map)))?;
+//     let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || Ok::<_, ()>(Map::longest(&map)))?;
 
-    aoc_lib::display_results(
-        "Day 9: All in a Single Night",
-        [
-            (&"", parse_bench),
-            (&p1_res?, p1_bench),
-            (&p2_res?, p2_bench),
-        ],
-    );
+//     aoc_lib::display_results(
+//         "Day 9: All in a Single Night",
+//         [
+//             (&"", parse_bench),
+//             (&p1_res?, p1_bench),
+//             (&p2_res?, p2_bench),
+//         ],
+//     );
 
-    Ok(())
-}
+//     Ok(())
+// }
 
 #[cfg(test)]
 mod tests_1509 {

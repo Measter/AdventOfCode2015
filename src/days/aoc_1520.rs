@@ -1,8 +1,26 @@
-use aoc_lib::TracingAlloc;
+use aoc_lib::{day, Bench, BenchError, BenchResult};
 use color_eyre::eyre::{eyre, Result};
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 20: "Infinite Elves and Infinite Houses"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    let input = input
+        .trim()
+        .parse::<usize>()
+        .map_err(|e| BenchError::UserError(e.into()))?;
+    b.bench(|| part1(input))
+}
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    let input = input
+        .trim()
+        .parse::<usize>()
+        .map_err(|e| BenchError::UserError(e.into()))?;
+    b.bench(|| part2(input))
+}
 
 fn part1(num_presents: usize) -> Result<usize> {
     let mut houses = vec![0; (num_presents / 10) + 1];
@@ -36,23 +54,6 @@ fn part2(num_presents: usize) -> Result<usize> {
     (1..)
         .find(|&h| house_presents_part2(h) >= num_presents)
         .ok_or_else(|| eyre!("Unable to find result"))
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 20).open()?;
-    let input = input.trim().parse::<usize>()?;
-
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part1(input))?;
-    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || part2(input))?;
-
-    aoc_lib::display_results(
-        "Day 20: Infinite Elves and Infinite Houses",
-        [(&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

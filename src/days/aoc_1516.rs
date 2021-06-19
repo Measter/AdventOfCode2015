@@ -1,9 +1,33 @@
-use aoc_lib::{parsers::unsigned_number, TracingAlloc};
+use aoc_lib::{day, parsers::unsigned_number, Bench, BenchError, BenchResult};
 use color_eyre::eyre::{eyre, Result};
 use nom::bytes::complete::take_while1;
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 16: "Aunt Sue"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    let sues: Vec<_> = input
+        .lines()
+        .map(str::trim)
+        .map(Sue::parse)
+        .collect::<Result<_, _>>()
+        .map_err(|e| BenchError::UserError(e.into()))?;
+
+    b.bench(|| part1(&sues))
+}
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    let sues: Vec<_> = input
+        .lines()
+        .map(str::trim)
+        .map(Sue::parse)
+        .collect::<Result<_, _>>()
+        .map_err(|e| BenchError::UserError(e.into()))?;
+
+    b.bench(|| part2(&sues))
+}
 
 #[derive(Debug, Default, PartialEq)]
 struct Sue {
@@ -96,29 +120,6 @@ fn part2(sues: &[Sue]) -> Result<&Sue> {
         .filter(|s| !matches!(s.cars, Some(v) if v != 2))
         .find(|s| !matches!(s.perfumes, Some(v) if v != 1))
         .ok_or_else(|| eyre!("Unable to find result"))
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 16).open()?;
-    let (sues, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || {
-        input
-            .lines()
-            .map(str::trim)
-            .map(Sue::parse)
-            .collect::<Result<Vec<_>>>()
-    })?;
-
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part1(&sues))?;
-    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || part2(&sues))?;
-
-    aoc_lib::display_results(
-        "Day 16: Aunt Sue",
-        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

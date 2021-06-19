@@ -1,13 +1,33 @@
-#![allow(clippy::unnecessary_wraps)]
-
-use aoc_lib::{parsers::split_pair, TracingAlloc};
+use aoc_lib::{day, parsers::split_pair, Bench, BenchError, BenchResult};
 use color_eyre::eyre::{eyre, Result};
 use itertools::Itertools;
 
 use std::iter;
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 21: "RPG Simulator 20XX"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    let boss = Actor::parse(input).map_err(|e| BenchError::UserError(e.into()))?;
+
+    let weapons = Equipment::get_weapons();
+    let armor = Equipment::get_armor();
+    let rings = Equipment::get_rings();
+
+    b.bench(|| part1(&boss, &weapons, &armor, &rings))
+}
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    let boss = Actor::parse(input).map_err(|e| BenchError::UserError(e.into()))?;
+
+    let weapons = Equipment::get_weapons();
+    let armor = Equipment::get_armor();
+    let rings = Equipment::get_rings();
+
+    b.bench(|| part2(&boss, &weapons, &armor, &rings))
+}
 
 #[derive(Debug)]
 struct Equipment {
@@ -195,29 +215,6 @@ fn part2(
     }
 
     Ok(cost)
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 21).open()?;
-    let (boss, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || Actor::parse(&input))?;
-
-    let weapons = Equipment::get_weapons();
-    let armor = Equipment::get_armor();
-    let rings = Equipment::get_rings();
-
-    let (p1_res, p1_bench) =
-        aoc_lib::bench(&ALLOC, "Part 1", || part1(&boss, &weapons, &armor, &rings))?;
-    let (p2_res, p2_bench) =
-        aoc_lib::bench(&ALLOC, "Part 2", || part2(&boss, &weapons, &armor, &rings))?;
-
-    aoc_lib::display_results(
-        "Day 21: RPG Simulator 20XX",
-        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

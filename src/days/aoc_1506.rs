@@ -1,10 +1,32 @@
 #![allow(clippy::unnecessary_wraps)]
 
-use aoc_lib::TracingAlloc;
+use aoc_lib::{day, Bench, BenchError, BenchResult};
 use color_eyre::eyre::{eyre, Result};
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 6: "Probably a Fire Hazard"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    let instructions: Vec<_> = input
+        .lines()
+        .map(Instruction::parse)
+        .collect::<Result<_, _>>()
+        .map_err(|e| BenchError::UserError(e.into()))?;
+
+    b.bench(|| part(&instructions, Operation::apply_part1))
+}
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    let instructions: Vec<_> = input
+        .lines()
+        .map(Instruction::parse)
+        .collect::<Result<_, _>>()
+        .map_err(|e| BenchError::UserError(e.into()))?;
+
+    b.bench(|| part(&instructions, Operation::apply_part2))
+}
 
 #[derive(Debug, Clone, PartialEq)]
 struct Instruction {
@@ -109,32 +131,6 @@ where
     }
 
     Ok(light_array.into_iter().map(u64::from).sum())
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 6).open()?;
-    let (instructions, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || {
-        input
-            .lines()
-            .map(Instruction::parse)
-            .collect::<Result<Vec<_>>>()
-    })?;
-
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || {
-        part(&instructions, Operation::apply_part1)
-    })?;
-    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || {
-        part(&instructions, Operation::apply_part2)
-    })?;
-
-    aoc_lib::display_results(
-        "Day 6: Probably a Fire Hazard",
-        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

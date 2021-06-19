@@ -1,8 +1,18 @@
-use aoc_lib::TracingAlloc;
+use aoc_lib::{day, Bench, BenchResult};
 use color_eyre::eyre::{eyre, Report, Result};
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+   day 2: "I Was Told There Would Be No Math"
+   1: run_part1
+   2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| part(input, Box::paper))
+}
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| part(input, Box::ribbon))
+}
 
 #[derive(Debug, Copy, Clone)]
 struct Box {
@@ -71,21 +81,6 @@ fn part(input: &str, f: fn(Box) -> u32) -> Result<u32> {
     }
 
     Ok(total)
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 2).open()?;
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part(&input, Box::paper))?;
-    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || part(&input, Box::ribbon))?;
-
-    aoc_lib::display_results(
-        "Day 2: I Was Told There Would Be No Math",
-        [(&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

@@ -1,10 +1,20 @@
-#![allow(clippy::unnecessary_wraps)]
-
-use aoc_lib::TracingAlloc;
+use aoc_lib::{day, Bench, BenchError, BenchResult};
 use color_eyre::eyre::{eyre, Result};
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 18: "Like a GIF For Your Yard"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    let light_array = LightArray::parse(input).map_err(|e| BenchError::UserError(e.into()))?;
+    b.bench(|| run_gol(light_array.clone(), false))
+}
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    let light_array = LightArray::parse(input).map_err(|e| BenchError::UserError(e.into()))?;
+    b.bench(|| run_gol(light_array.clone(), true))
+}
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 enum LightState {
@@ -136,25 +146,6 @@ fn run_gol(mut array: LightArray, stuck: bool) -> Result<usize> {
         .iter()
         .map(|&l| (l == LightState::On) as usize)
         .sum())
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 18).open()?;
-    let (light_array, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || LightArray::parse(&input))?;
-
-    let (p1_res, p1_bench) =
-        aoc_lib::bench(&ALLOC, "Part 1", || run_gol(light_array.clone(), false))?;
-    let (p2_res, p2_bench) =
-        aoc_lib::bench(&ALLOC, "Part 2", || run_gol(light_array.clone(), true))?;
-
-    aoc_lib::display_results(
-        "Day 18: Like a GIF For Your Yard",
-        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

@@ -1,13 +1,29 @@
-#![allow(clippy::unnecessary_wraps)]
-
-use aoc_lib::TracingAlloc;
+use aoc_lib::{day, Bench, BenchError, BenchResult};
 use color_eyre::eyre::{eyre, Result};
 use itertools::Itertools;
 
 use std::collections::{BTreeSet, HashMap};
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 13: "Knights of the Dinner Table"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    let table = People::parse(input).map_err(|e| BenchError::UserError(e.into()))?;
+    b.bench(|| table.biggest_happiness())
+}
+
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    let mut table = People::parse(input).map_err(|e| BenchError::UserError(e.into()))?;
+    table.people.push("Self");
+    for p in &table.people {
+        table.happiness.insert(("Self", p), 0);
+        table.happiness.insert((p, "Self"), 0);
+    }
+    b.bench(|| table.biggest_happiness())
+}
 
 #[derive(Debug, PartialEq, Clone)]
 struct People<'a> {
@@ -73,30 +89,6 @@ impl<'a> People<'a> {
 
         Ok(max_change)
     }
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 13).open()?;
-    let (part1_table, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || People::parse(&input))?;
-
-    let mut part2_table = part1_table.clone();
-    part2_table.people.push("Self");
-    for p in &part2_table.people {
-        part2_table.happiness.insert(("Self", p), 0);
-        part2_table.happiness.insert((p, "Self"), 0);
-    }
-
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || part1_table.biggest_happiness())?;
-    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || part2_table.biggest_happiness())?;
-
-    aoc_lib::display_results(
-        "Day 13: Knights of the Dinner Table",
-        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

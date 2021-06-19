@@ -1,12 +1,43 @@
-#![allow(clippy::unnecessary_wraps)]
-
 use std::ops::{Index, IndexMut};
 
-use aoc_lib::TracingAlloc;
+use aoc_lib::{day, Bench, BenchError, BenchResult};
 use color_eyre::eyre::{eyre, Context, Result};
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 23: "Opening the Turing Lock"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    let instructions: Vec<_> = input
+        .lines()
+        .map(str::trim)
+        .map(Instruction::parse)
+        .collect::<Result<_, _>>()
+        .map_err(|e| BenchError::UserError(e.into()))?;
+
+    b.bench(|| {
+        let mut computer = Computer::default();
+        computer.run_program(&instructions);
+        Ok::<_, u32>(computer.registers.b)
+    })
+}
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    let instructions: Vec<_> = input
+        .lines()
+        .map(str::trim)
+        .map(Instruction::parse)
+        .collect::<Result<_, _>>()
+        .map_err(|e| BenchError::UserError(e.into()))?;
+
+    b.bench(|| {
+        let mut computer = Computer::default();
+        computer.registers.a = 1;
+        computer.run_program(&instructions);
+        Ok::<_, u32>(computer.registers.b)
+    })
+}
 
 const SEPARATORS: &[char] = &[' ', ','];
 const OFFSET_PREFIX: &[char] = &['-', '+'];
@@ -150,38 +181,6 @@ impl Computer {
             pc += 1;
         }
     }
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 23).open()?;
-    let (instructions, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || {
-        input
-            .lines()
-            .map(str::trim)
-            .map(Instruction::parse)
-            .collect::<Result<Vec<_>>>()
-    })?;
-
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || {
-        let mut computer = Computer::default();
-        computer.run_program(&instructions);
-        Ok::<_, ()>(computer.registers.b)
-    })?;
-    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || {
-        let mut computer = Computer::default();
-        computer.registers.a = 1;
-        computer.run_program(&instructions);
-        Ok::<_, ()>(computer.registers.b)
-    })?;
-
-    aoc_lib::display_results(
-        "Day 23: Opening the Turing Lock",
-        [(&"", parse_bench), (&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]

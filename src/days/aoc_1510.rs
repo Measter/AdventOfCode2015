@@ -1,11 +1,20 @@
-use aoc_lib::TracingAlloc;
-use color_eyre::eyre::Result;
+use aoc_lib::{day, Bench, BenchResult};
 use itertools::Itertools;
 
 use std::fmt::Write;
 
-#[global_allocator]
-static ALLOC: TracingAlloc = TracingAlloc::new();
+day! {
+    day 10: "Elves Look, Elves Say"
+    1: run_part1
+    2: run_part2
+}
+
+fn run_part1(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| Ok::<_, u32>(looksay(input.to_owned(), 40).len()))
+}
+fn run_part2(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| Ok::<_, u32>(looksay(input.to_owned(), 50).len()))
+}
 
 fn looksay(input: String, iterations: usize) -> String {
     let mut buf_a = input;
@@ -21,25 +30,6 @@ fn looksay(input: String, iterations: usize) -> String {
     }
 
     buf_a
-}
-
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
-    let input = aoc_lib::input(2015, 10).open()?;
-    let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || {
-        Ok::<_, ()>(looksay(input.clone(), 40).len())
-    })?;
-    let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || {
-        Ok::<_, ()>(looksay(input.clone(), 50).len())
-    })?;
-
-    aoc_lib::display_results(
-        "Day 10: Elves Look, Elves Say",
-        [(&p1_res, p1_bench), (&p2_res, p2_bench)],
-    );
-
-    Ok(())
 }
 
 #[cfg(test)]
