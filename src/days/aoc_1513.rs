@@ -1,4 +1,4 @@
-use aoc_lib::{day, Bench, BenchError, BenchResult};
+use aoc_lib::{day, misc::ArrWindows, Bench, BenchError, BenchResult};
 use color_eyre::eyre::{eyre, Result};
 use itertools::Itertools;
 
@@ -11,7 +11,8 @@ day! {
 }
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
-    let table = People::parse(input).map_err(|e| BenchError::UserError(e.into()))?;
+    let mut table = People::parse(input).map_err(|e| BenchError::UserError(e.into()))?;
+    table.build_fast_lookup();
     b.bench(|| table.biggest_happiness())
 }
 
@@ -22,6 +23,7 @@ fn run_part2(input: &str, b: Bench) -> BenchResult {
         table.happiness.insert(("Self", p), 0);
         table.happiness.insert((p, "Self"), 0);
     }
+    table.build_fast_lookup();
     b.bench(|| table.biggest_happiness())
 }
 
@@ -29,6 +31,7 @@ fn run_part2(input: &str, b: Bench) -> BenchResult {
 struct People<'a> {
     happiness: HashMap<(&'a str, &'a str), i32>,
     people: Vec<&'a str>,
+    fast_lookup: Vec<i32>,
 }
 
 impl<'a> People<'a> {
@@ -66,22 +69,40 @@ impl<'a> People<'a> {
         Ok(People {
             people: people.into_iter().collect(),
             happiness,
+            fast_lookup: Vec::new(),
         })
+    }
+
+    // Saves us doing the hash lookup later.
+    fn build_fast_lookup(&mut self) {
+        self.fast_lookup
+            .resize(self.people.len() * self.people.len(), 0);
+
+        let range = 0..self.people.len();
+        for (a, b) in (range.clone()).cartesian_product(range) {
+            let a_name = self.people[a];
+            let b_name = self.people[b];
+
+            if a != b {
+                let a_val = self.happiness[&(a_name, b_name)];
+                let b_val = self.happiness[&(b_name, a_name)];
+
+                self.fast_lookup[a * self.people.len() + b] = a_val + b_val;
+            }
+        }
     }
 
     fn biggest_happiness(&self) -> Result<i32> {
         let mut max_change = 0;
 
-        for mut arrangement in self.people.iter().permutations(self.people.len()) {
+        let range = 0..self.people.len();
+        for mut arrangement in range.permutations(self.people.len()) {
             // Circular table, so put the first on the end.
             let first = arrangement[0];
             arrangement.push(first);
 
-            let happiness: i32 = arrangement
-                .windows(2)
-                .map(|pair| {
-                    self.happiness[&(*pair[0], *pair[1])] + self.happiness[&(*pair[1], *pair[0])]
-                })
+            let happiness: i32 = ArrWindows::new(&arrangement)
+                .map(|&[a, b]| self.fast_lookup[a * self.people.len() + b])
                 .sum();
 
             max_change = max_change.max(happiness);
@@ -128,6 +149,7 @@ mod tests_1513 {
                 map.insert(("David", "Carol"), 41);
                 map
             },
+            fast_lookup: Vec::new(),
         };
 
         let actual = People::parse(input).unwrap();
@@ -150,7 +172,8 @@ mod tests_1513 {
         David would lose 7 happiness units by sitting next to Bob.
         David would gain 41 happiness units by sitting next to Carol.";
 
-        let table = People::parse(input).unwrap();
+        let mut table = People::parse(input).unwrap();
+        table.build_fast_lookup();
         let actual = table.biggest_happiness();
 
         assert_eq!(330, actual.unwrap());

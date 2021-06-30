@@ -23,13 +23,14 @@ fn run_part2(input: &str, b: Bench) -> BenchResult {
 }
 
 fn part1(num_presents: usize) -> Result<usize> {
-    let mut houses = vec![0; (num_presents / 10) + 1];
+    let num_presents = num_presents / 10;
+    let mut houses = vec![0; num_presents + 1];
 
-    for elf in 1..=(num_presents / 10) {
+    for elf in 1..=(num_presents) {
         (1..)
             .map(|m| m * elf)
-            .take_while(|&house| house <= (num_presents / 10))
-            .for_each(|house| houses[house] += elf * 10);
+            .take_while(|&house| house <= num_presents)
+            .for_each(|house| houses[house] += elf);
     }
 
     houses

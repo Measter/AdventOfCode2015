@@ -1,5 +1,5 @@
 use aoc_lib::{day, misc::ArrWindows, Bench, BenchResult};
-use color_eyre::eyre::Result;
+use color_eyre::eyre::{eyre, Result};
 
 day! {
     day 11: "Corporate Policy"
@@ -19,23 +19,24 @@ fn banned_char(c: char) -> bool {
     c == 'i' || c == 'o' || c == 'l'
 }
 
-fn part1_validity(pswd: &str, char_buffer: &mut Vec<char>) -> bool {
-    let has_banned_letters = pswd.matches(banned_char).count() != 0;
+fn part1_validity(char_buffer: &mut Vec<char>) -> bool {
+    let has_banned_letters = char_buffer.iter().any(|&c| banned_char(c));
 
-    char_buffer.clear();
-    char_buffer.extend(pswd.chars());
+    if has_banned_letters {
+        return false;
+    }
 
-    let has_triplet = ArrWindows::new(&char_buffer).any(|&[a, b, c]| {
-        let a = a as u8;
-        let b = b as u8;
-        let c = c as u8;
+    let has_triplet = ArrWindows::new(&char_buffer)
+        .map(|&[a, b, c]| [a as u8, b as u8, c as u8])
+        .any(|[a, b, c]| a < b && b < c && b - a == 1 && c - a == 2);
 
-        a < b && b < c && b - a == 1 && c - a == 2
-    });
+    if !has_triplet {
+        return false;
+    }
 
     let mut seen_pairs = 0;
 
-    let mut windows = char_buffer.windows(2);
+    let mut windows = ArrWindows::new(&char_buffer);
     while let Some([a, b]) = windows.next() {
         if a != b {
             continue;
@@ -48,7 +49,7 @@ fn part1_validity(pswd: &str, char_buffer: &mut Vec<char>) -> bool {
         windows.next();
     }
 
-    !has_banned_letters && has_triplet && seen_pairs >= 2
+    seen_pairs >= 2
 }
 
 fn part1_next_password(pswd: &str) -> Result<String> {
@@ -59,11 +60,10 @@ fn part1_next_password(pswd: &str) -> Result<String> {
         .map(|b| (b - b'a') as u64)
         .fold(0, |acc, b| acc * 26 + b);
 
-    let mut next_buf = String::with_capacity(8);
-    let mut char_buffer = Vec::new();
+    let mut char_buffer = Vec::with_capacity(8);
 
     'outer: for mut i in (decoded + 1)..=max_num {
-        next_buf.clear();
+        char_buffer.clear();
 
         for _ in 0..8 {
             let rem = i % 26;
@@ -72,18 +72,17 @@ fn part1_next_password(pswd: &str) -> Result<String> {
             if banned_char(next_char) {
                 continue 'outer;
             }
-            next_buf.push(next_char);
+            char_buffer.push(next_char);
         }
 
-        // SAFETY: We know our input is ASCII.
-        unsafe { next_buf.as_bytes_mut().reverse() };
+        char_buffer.reverse();
 
-        if part1_validity(&next_buf, &mut char_buffer) {
-            break;
+        if part1_validity(&mut char_buffer) {
+            return Ok(char_buffer.into_iter().collect());
         }
     }
 
-    Ok(next_buf)
+    Err(eyre!("No next password found"))
 }
 
 #[cfg(test)]
@@ -105,7 +104,9 @@ mod tests_1511 {
         let mut char_buf = Vec::new();
 
         for &(pswd, expected) in &tests {
-            assert_eq!(part1_validity(pswd, &mut char_buf), expected, "{}", pswd);
+            char_buf.clear();
+            char_buf.extend(pswd.chars());
+            assert_eq!(part1_validity(&mut char_buf), expected, "{}", pswd);
         }
     }
 

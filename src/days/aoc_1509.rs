@@ -1,4 +1,4 @@
-use aoc_lib::{day, Bench, BenchError, BenchResult};
+use aoc_lib::{day, misc::ArrWindows, Bench, BenchError, BenchResult};
 use color_eyre::eyre::Result;
 use itertools::Itertools;
 
@@ -60,9 +60,8 @@ impl<'a> Map<'a> {
         let mut min_distance = u32::MAX;
 
         for route in self.locations.iter().permutations(self.locations.len()) {
-            let route_distance = route
-                .windows(2)
-                .map(|pair| self.distances[&(*pair[0], *pair[1])])
+            let route_distance = ArrWindows::new(&route)
+                .map(|&[a, b]| self.distances[&(*a, *b)])
                 .sum();
 
             min_distance = min_distance.min(route_distance);
@@ -75,9 +74,8 @@ impl<'a> Map<'a> {
         let mut max_distance = 0;
 
         for route in self.locations.iter().permutations(self.locations.len()) {
-            let route_distance = route
-                .windows(2)
-                .map(|pair| self.distances[&(*pair[0], *pair[1])])
+            let route_distance = ArrWindows::new(&route)
+                .map(|&[a, b]| self.distances[&(*a, *b)])
                 .sum();
 
             max_distance = max_distance.max(route_distance);
@@ -86,27 +84,6 @@ impl<'a> Map<'a> {
         Ok(max_distance)
     }
 }
-
-// fn main() -> Result<()> {
-//     color_eyre::install()?;
-
-//     let input = aoc_lib::input(2015, 9).open()?;
-//     let (map, parse_bench) = aoc_lib::bench(&ALLOC, "Parse", || Map::parse(&input))?;
-
-//     let (p1_res, p1_bench) = aoc_lib::bench(&ALLOC, "Part 1", || Ok::<_, ()>(Map::shortest(&map)))?;
-//     let (p2_res, p2_bench) = aoc_lib::bench(&ALLOC, "Part 2", || Ok::<_, ()>(Map::longest(&map)))?;
-
-//     aoc_lib::display_results(
-//         "Day 9: All in a Single Night",
-//         [
-//             (&"", parse_bench),
-//             (&p1_res?, p1_bench),
-//             (&p2_res?, p2_bench),
-//         ],
-//     );
-
-//     Ok(())
-// }
 
 #[cfg(test)]
 mod tests_1509 {

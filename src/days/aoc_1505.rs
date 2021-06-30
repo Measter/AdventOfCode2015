@@ -1,4 +1,4 @@
-use aoc_lib::{day, Bench, BenchResult};
+use aoc_lib::{day, misc::ArrWindows, Bench, BenchResult};
 
 day! {
     day 5: "Doesn't He Have Intern-Elves For This?"
@@ -36,11 +36,6 @@ fn part1(input: &str) -> bool {
     let vowels: &[char] = &['a', 'e', 'i', 'o', 'u'];
     let has_three_vowels = input.matches(vowels).count() >= 3;
 
-    let has_invalid_strings = input.contains("ab")
-        || input.contains("cd")
-        || input.contains("pq")
-        || input.contains("xy");
-
     // We know the length is 16 chars.
     let chars = {
         let mut chars = ['\0'; 16];
@@ -50,9 +45,12 @@ fn part1(input: &str) -> bool {
             .for_each(|(dst, src)| *dst = src);
         chars
     };
-    let has_double_char = chars
-        .windows(2)
-        .any(|pair| matches!(pair, [a, b] if a == b));
+    let mut has_invalid_strings = false;
+    let mut has_double_char = false;
+    for pair in ArrWindows::new(&chars) {
+        has_invalid_strings |= matches!(pair, ['a', 'b'] | ['c', 'd'] | ['p', 'q'] | ['x', 'y']);
+        has_double_char |= pair[0] == pair[1];
+    }
 
     has_three_vowels && !has_invalid_strings && has_double_char
 }
@@ -68,21 +66,19 @@ fn part2(input: &str) -> bool {
         chars
     };
 
-    let sep_letters = chars
-        .windows(3)
-        .any(|trio| matches!(trio, [a, _, b] if a == b));
+    let sep_letters = ArrWindows::new(&chars).any(|[a, _, b]| a == b);
 
     let mut has_two_pairs = false;
 
-    for (idx, _) in chars.windows(2).enumerate() {
-        let has_valids =
-            input[idx + 2..]
-                .match_indices(&input[idx..idx + 2])
-                .any(|(mut m_idx, _)| {
-                    m_idx += idx + 2; // Need to account for the offset start of string.
-                    let diff = idx.max(m_idx) - idx.min(m_idx);
-                    idx != m_idx && diff >= 2
-                });
+    for (idx, pair) in ArrWindows::<_, 2>::new(&chars).enumerate() {
+        let has_valids = ArrWindows::new(&chars[idx + 2..])
+            .enumerate()
+            .filter(|&(_, pair2)| pair == pair2)
+            .any(|(mut m_idx, _)| {
+                m_idx += idx + 2; // Need to account for the offset start of string.
+                let diff = idx.max(m_idx) - idx.min(m_idx);
+                idx != m_idx && diff >= 2
+            });
 
         if has_valids {
             has_two_pairs = true;

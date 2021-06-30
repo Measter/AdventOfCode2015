@@ -1,8 +1,6 @@
 use aoc_lib::{day, Bench, BenchResult};
 use itertools::Itertools;
 
-use std::fmt::Write;
-
 day! {
     day 10: "Elves Look, Elves Say"
     1: run_part1
@@ -22,7 +20,9 @@ fn looksay(input: String, iterations: usize) -> String {
 
     for _ in 0..iterations {
         for (ch, run) in &buf_a.chars().group_by(|c| *c) {
-            write!(&mut buf_b, "{}{}", run.count(), ch).unwrap();
+            itoa::fmt(&mut buf_b, run.count()).unwrap();
+            buf_b.push(ch);
+            //write!(&mut buf_b, "{}{}", run.count(), ch).unwrap();
         }
 
         std::mem::swap(&mut buf_a, &mut buf_b);
