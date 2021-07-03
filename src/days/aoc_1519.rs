@@ -1,4 +1,4 @@
-use aoc_lib::{day, Bench, BenchError, BenchResult};
+use aoc_lib::{day, Bench, BenchResult, UserError};
 use color_eyre::eyre::{eyre, Result};
 
 use std::collections::{HashMap, HashSet};
@@ -9,7 +9,7 @@ day! {
 }
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
-    let (mappings, input) = parse_input(input).map_err(|e| BenchError::UserError(e.into()))?;
+    let (mappings, input) = parse_input(input).map_err(UserError)?;
 
     b.bench(|| part1(&mappings, &input))
 }

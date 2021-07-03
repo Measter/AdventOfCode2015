@@ -1,4 +1,4 @@
-use aoc_lib::{day, Bench, BenchError, BenchResult};
+use aoc_lib::{day, Bench, BenchResult, UserError};
 use color_eyre::eyre::{eyre, Result};
 use itertools::Itertools;
 
@@ -16,7 +16,7 @@ fn run_part1(input: &str, b: Bench) -> BenchResult {
         .map(str::trim)
         .map(str::parse)
         .collect::<Result<_, ParseIntError>>()
-        .map_err(|e| BenchError::UserError(e.into()))?;
+        .map_err(UserError)?;
 
     b.bench(|| part1(&containers, 150))
 }
@@ -27,7 +27,7 @@ fn run_part2(input: &str, b: Bench) -> BenchResult {
         .map(str::trim)
         .map(str::parse)
         .collect::<Result<_, ParseIntError>>()
-        .map_err(|e| BenchError::UserError(e.into()))?;
+        .map_err(UserError)?;
 
     b.bench(|| part2(&containers, 150))
 }

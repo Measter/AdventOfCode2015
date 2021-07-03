@@ -1,4 +1,4 @@
-use aoc_lib::{day, Bench, BenchResult};
+use aoc_lib::{day, Bench, BenchResult, NoError};
 
 day! {
     day 8: "Matchsticks"
@@ -8,7 +8,7 @@ day! {
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
     b.bench(|| {
-        Ok::<usize, usize>(
+        Ok::<usize, NoError>(
             input
                 .lines()
                 .map(str::trim)
@@ -21,7 +21,7 @@ fn run_part1(input: &str, b: Bench) -> BenchResult {
 
 fn run_part2(input: &str, b: Bench) -> BenchResult {
     b.bench(|| {
-        Ok::<usize, usize>(
+        Ok::<usize, NoError>(
             input
                 .lines()
                 .map(str::trim)

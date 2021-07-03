@@ -1,6 +1,6 @@
 use std::ops::{Index, IndexMut};
 
-use aoc_lib::{day, Bench, BenchError, BenchResult};
+use aoc_lib::{day, Bench, BenchResult, NoError, UserError};
 use color_eyre::eyre::{eyre, Context, Result};
 
 day! {
@@ -15,12 +15,12 @@ fn run_part1(input: &str, b: Bench) -> BenchResult {
         .map(str::trim)
         .map(Instruction::parse)
         .collect::<Result<_, _>>()
-        .map_err(|e| BenchError::UserError(e.into()))?;
+        .map_err(UserError)?;
 
     b.bench(|| {
         let mut computer = Computer::default();
         computer.run_program(&instructions);
-        Ok::<_, u32>(computer.registers.b)
+        Ok::<_, NoError>(computer.registers.b)
     })
 }
 fn run_part2(input: &str, b: Bench) -> BenchResult {
@@ -29,13 +29,13 @@ fn run_part2(input: &str, b: Bench) -> BenchResult {
         .map(str::trim)
         .map(Instruction::parse)
         .collect::<Result<_, _>>()
-        .map_err(|e| BenchError::UserError(e.into()))?;
+        .map_err(UserError)?;
 
     b.bench(|| {
         let mut computer = Computer::default();
         computer.registers.a = 1;
         computer.run_program(&instructions);
-        Ok::<_, u32>(computer.registers.b)
+        Ok::<_, NoError>(computer.registers.b)
     })
 }
 

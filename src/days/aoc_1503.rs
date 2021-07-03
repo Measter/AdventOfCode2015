@@ -1,4 +1,4 @@
-use aoc_lib::{day, BenchError, BenchResult};
+use aoc_lib::{day, BenchResult, UserError};
 use color_eyre::{
     eyre::{eyre, Result},
     Report,
@@ -13,16 +13,12 @@ day! {
 }
 
 fn run_part1(input: &str, b: aoc_lib::Bench) -> BenchResult {
-    let moves = input
-        .parse::<MoveList>()
-        .map_err(|e| BenchError::UserError(e.into()))?;
+    let moves = input.parse::<MoveList>().map_err(UserError)?;
     b.bench(|| part1(&moves))
 }
 
 fn run_part2(input: &str, b: aoc_lib::Bench) -> BenchResult {
-    let moves = input
-        .parse::<MoveList>()
-        .map_err(|e| BenchError::UserError(e.into()))?;
+    let moves = input.parse::<MoveList>().map_err(UserError)?;
     b.bench(|| part2(&moves))
 }
 

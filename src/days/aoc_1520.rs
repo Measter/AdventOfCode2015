@@ -1,4 +1,4 @@
-use aoc_lib::{day, Bench, BenchError, BenchResult};
+use aoc_lib::{day, Bench, BenchResult, UserError};
 use color_eyre::eyre::{eyre, Result};
 
 day! {
@@ -8,17 +8,11 @@ day! {
 }
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
-    let input = input
-        .trim()
-        .parse::<usize>()
-        .map_err(|e| BenchError::UserError(e.into()))?;
+    let input = input.trim().parse::<usize>().map_err(UserError)?;
     b.bench(|| part1(input))
 }
 fn run_part2(input: &str, b: Bench) -> BenchResult {
-    let input = input
-        .trim()
-        .parse::<usize>()
-        .map_err(|e| BenchError::UserError(e.into()))?;
+    let input = input.trim().parse::<usize>().map_err(UserError)?;
     b.bench(|| part2(input))
 }
 

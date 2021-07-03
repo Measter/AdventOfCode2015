@@ -1,4 +1,4 @@
-use aoc_lib::{day, misc::ArrWindows, Bench, BenchError, BenchResult};
+use aoc_lib::{day, misc::ArrWindows, Bench, BenchResult, UserError};
 use color_eyre::eyre::{eyre, Result};
 use itertools::Itertools;
 
@@ -11,13 +11,13 @@ day! {
 }
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
-    let mut table = People::parse(input).map_err(|e| BenchError::UserError(e.into()))?;
+    let mut table = People::parse(input).map_err(UserError)?;
     table.build_fast_lookup();
     b.bench(|| table.biggest_happiness())
 }
 
 fn run_part2(input: &str, b: Bench) -> BenchResult {
-    let mut table = People::parse(input).map_err(|e| BenchError::UserError(e.into()))?;
+    let mut table = People::parse(input).map_err(UserError)?;
     table.people.push("Self");
     for p in &table.people {
         table.happiness.insert(("Self", p), 0);

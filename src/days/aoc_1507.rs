@@ -1,4 +1,4 @@
-use aoc_lib::{day, Bench, BenchError, BenchResult};
+use aoc_lib::{day, Bench, BenchResult, UserError};
 use color_eyre::eyre::{eyre, Result};
 
 use std::collections::HashMap;
@@ -10,12 +10,12 @@ day! {
 }
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
-    let circuit = Circuit::parse_circuit(input).map_err(|e| BenchError::UserError(e.into()))?;
+    let circuit = Circuit::parse_circuit(input).map_err(UserError)?;
     b.bench(|| part_1(circuit.clone()))
 }
 
 fn run_part2(input: &str, b: Bench) -> BenchResult {
-    let circuit = Circuit::parse_circuit(input).map_err(|e| BenchError::UserError(e.into()))?;
+    let circuit = Circuit::parse_circuit(input).map_err(UserError)?;
     b.bench(|| part_2(circuit.clone()))
 }
 

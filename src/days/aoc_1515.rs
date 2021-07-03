@@ -1,4 +1,4 @@
-use aoc_lib::{day, parsers::signed_number, Bench, BenchError, BenchResult};
+use aoc_lib::{day, parsers::signed_number, Bench, BenchResult, UserError};
 use color_eyre::eyre::{eyre, Result};
 
 day! {
@@ -13,7 +13,7 @@ fn run_part1(input: &str, b: Bench) -> BenchResult {
         .map(str::trim)
         .map(Ingredient::parse)
         .collect::<Result<_, _>>()
-        .map_err(|e| BenchError::UserError(e.into()))?;
+        .map_err(UserError)?;
 
     b.bench(|| cookie_search(&ingredients, 100, |_| true))
 }
@@ -24,7 +24,7 @@ fn run_part2(input: &str, b: Bench) -> BenchResult {
         .map(str::trim)
         .map(Ingredient::parse)
         .collect::<Result<_, _>>()
-        .map_err(|e| BenchError::UserError(e.into()))?;
+        .map_err(UserError)?;
 
     b.bench(|| cookie_search(&ingredients, 100, |c| c == 500))
 }

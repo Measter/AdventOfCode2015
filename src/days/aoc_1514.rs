@@ -1,4 +1,4 @@
-use aoc_lib::{day, Bench, BenchError, BenchResult};
+use aoc_lib::{day, Bench, BenchResult, NoError, UserError};
 use color_eyre::eyre::{eyre, Result};
 
 day! {
@@ -13,7 +13,7 @@ fn run_part1(input: &str, b: Bench) -> BenchResult {
         .map(str::trim)
         .map(Reindeer::parse)
         .collect::<Result<_, _>>()
-        .map_err(|e| BenchError::UserError(e.into()))?;
+        .map_err(UserError)?;
 
     b.bench(|| {
         reindeer
@@ -30,9 +30,9 @@ fn run_part2(input: &str, b: Bench) -> BenchResult {
         .map(str::trim)
         .map(Reindeer::parse)
         .collect::<Result<_, _>>()
-        .map_err(|e| BenchError::UserError(e.into()))?;
+        .map_err(UserError)?;
 
-    b.bench(|| Ok::<_, u32>(part2(&&reindeer, 2503).1))
+    b.bench(|| Ok::<_, NoError>(part2(&&reindeer, 2503).1))
 }
 
 #[derive(Debug, PartialEq)]

@@ -1,4 +1,4 @@
-use aoc_lib::{day, parsers::split_pair, Bench, BenchError, BenchResult};
+use aoc_lib::{day, parsers::split_pair, Bench, BenchResult, UserError};
 use color_eyre::eyre::{eyre, Result};
 use itertools::Itertools;
 
@@ -11,7 +11,7 @@ day! {
 }
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
-    let boss = Actor::parse(input).map_err(|e| BenchError::UserError(e.into()))?;
+    let boss = Actor::parse(input).map_err(UserError)?;
 
     let weapons = Equipment::get_weapons();
     let armor = Equipment::get_armor();
@@ -20,7 +20,7 @@ fn run_part1(input: &str, b: Bench) -> BenchResult {
     b.bench(|| part1(&boss, &weapons, &armor, &rings))
 }
 fn run_part2(input: &str, b: Bench) -> BenchResult {
-    let boss = Actor::parse(input).map_err(|e| BenchError::UserError(e.into()))?;
+    let boss = Actor::parse(input).map_err(UserError)?;
 
     let weapons = Equipment::get_weapons();
     let armor = Equipment::get_armor();

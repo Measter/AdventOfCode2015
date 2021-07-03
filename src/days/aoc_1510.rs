@@ -1,4 +1,4 @@
-use aoc_lib::{day, Bench, BenchResult};
+use aoc_lib::{day, Bench, BenchResult, NoError};
 use itertools::Itertools;
 
 day! {
@@ -8,10 +8,10 @@ day! {
 }
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
-    b.bench(|| Ok::<_, u32>(looksay(input.to_owned(), 40).len()))
+    b.bench(|| Ok::<_, NoError>(looksay(input.to_owned(), 40).len()))
 }
 fn run_part2(input: &str, b: Bench) -> BenchResult {
-    b.bench(|| Ok::<_, u32>(looksay(input.to_owned(), 50).len()))
+    b.bench(|| Ok::<_, NoError>(looksay(input.to_owned(), 50).len()))
 }
 
 fn looksay(input: String, iterations: usize) -> String {

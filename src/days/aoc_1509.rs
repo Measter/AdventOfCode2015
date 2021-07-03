@@ -1,4 +1,4 @@
-use aoc_lib::{day, misc::ArrWindows, Bench, BenchError, BenchResult};
+use aoc_lib::{day, misc::ArrWindows, Bench, BenchResult, UserError};
 use color_eyre::eyre::Result;
 use itertools::Itertools;
 
@@ -11,11 +11,11 @@ day! {
 }
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
-    let map = Map::parse(input).map_err(|e| BenchError::UserError(e.into()))?;
+    let map = Map::parse(input).map_err(UserError)?;
     b.bench(|| Map::shortest(&map))
 }
 fn run_part2(input: &str, b: Bench) -> BenchResult {
-    let map = Map::parse(input).map_err(|e| BenchError::UserError(e.into()))?;
+    let map = Map::parse(input).map_err(UserError)?;
     b.bench(|| Map::longest(&map))
 }
 

@@ -1,4 +1,4 @@
-use aoc_lib::{day, misc::ArrWindows, Bench, BenchResult};
+use aoc_lib::{day, misc::ArrWindows, Bench, BenchResult, NoError};
 
 day! {
     day 5: "Doesn't He Have Intern-Elves For This?"
@@ -8,7 +8,7 @@ day! {
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
     b.bench(|| {
-        Ok::<_, u32>(
+        Ok::<_, NoError>(
             input
                 .lines()
                 .map(str::trim)
@@ -21,7 +21,7 @@ fn run_part1(input: &str, b: Bench) -> BenchResult {
 
 fn run_part2(input: &str, b: Bench) -> BenchResult {
     b.bench(|| {
-        Ok::<_, u32>(
+        Ok::<_, NoError>(
             input
                 .lines()
                 .map(str::trim)

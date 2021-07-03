@@ -1,4 +1,4 @@
-use aoc_lib::{day, Bench, BenchError, BenchResult};
+use aoc_lib::{day, Bench, BenchResult, UserError};
 use color_eyre::eyre::{Report, Result};
 use serde_json::Value;
 
@@ -9,11 +9,11 @@ day! {
 }
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
-    let values: Value = serde_json::from_str(input).map_err(|e| BenchError::UserError(e.into()))?;
+    let values: Value = serde_json::from_str(input).map_err(UserError)?;
     b.bench(|| part1(&values))
 }
 fn run_part2(input: &str, b: Bench) -> BenchResult {
-    let values: Value = serde_json::from_str(input).map_err(|e| BenchError::UserError(e.into()))?;
+    let values: Value = serde_json::from_str(input).map_err(UserError)?;
     b.bench(|| part2(&values))
 }
 
