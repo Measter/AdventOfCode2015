@@ -104,7 +104,7 @@ mod tests_1505 {
         ];
 
         for &(input, output) in &vals {
-            assert_eq!(part1(&input), output, "{}", input);
+            assert_eq!(part1(input), output, "{}", input);
         }
     }
 
@@ -118,7 +118,7 @@ mod tests_1505 {
         ];
 
         for &(input, output) in &vals {
-            assert_eq!(part2(&input), output, "{}", input);
+            assert_eq!(part2(input), output, "{}", input);
         }
     }
 }

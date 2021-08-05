@@ -11,7 +11,7 @@ day! {
 fn run_part1(input: &str, b: Bench) -> BenchResult {
     let (mappings, input) = parse_input(input).map_err(UserError)?;
 
-    b.bench(|| part1(&mappings, &input))
+    b.bench(|| part1(&mappings, input))
 }
 
 fn parse_input(input: &str) -> Result<(HashMap<&str, Vec<&str>>, &str)> {

@@ -72,8 +72,8 @@ mod tests_1501 {
 
     #[test]
     fn part2_examples() {
-        assert_eq!(1, part2(&")").unwrap());
+        assert_eq!(1, part2(")").unwrap());
 
-        assert_eq!(5, part2(&"()())").unwrap());
+        assert_eq!(5, part2("()())").unwrap());
     }
 }

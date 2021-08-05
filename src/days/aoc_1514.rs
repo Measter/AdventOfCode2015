@@ -32,7 +32,7 @@ fn run_part2(input: &str, b: Bench) -> BenchResult {
         .collect::<Result<_, _>>()
         .map_err(UserError)?;
 
-    b.bench(|| Ok::<_, NoError>(part2(&&reindeer, 2503).1))
+    b.bench(|| Ok::<_, NoError>(part2(&reindeer, 2503).1))
 }
 
 #[derive(Debug, PartialEq)]

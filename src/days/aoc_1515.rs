@@ -176,7 +176,7 @@ fn cookie_search(
     let mut hit_max = false;
 
     loop {
-        let score = get_score(&ingredients, &num_teaspoons, &cal_func);
+        let score = get_score(ingredients, &num_teaspoons, &cal_func);
         max_score = max_score.max(score);
 
         next_teaspoons(&mut num_teaspoons, max_teaspoons);

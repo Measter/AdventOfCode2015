@@ -26,7 +26,7 @@ fn part1_validity(char_buffer: &mut Vec<char>) -> bool {
         return false;
     }
 
-    let has_triplet = ArrWindows::new(&char_buffer)
+    let has_triplet = ArrWindows::new(char_buffer)
         .map(|&[a, b, c]| [a as u8, b as u8, c as u8])
         .any(|[a, b, c]| a < b && b < c && b - a == 1 && c - a == 2);
 
@@ -36,7 +36,7 @@ fn part1_validity(char_buffer: &mut Vec<char>) -> bool {
 
     let mut seen_pairs = 0;
 
-    let mut windows = ArrWindows::new(&char_buffer);
+    let mut windows = ArrWindows::new(char_buffer);
     while let Some([a, b]) = windows.next() {
         if a != b {
             continue;
