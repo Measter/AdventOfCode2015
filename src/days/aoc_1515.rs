@@ -1,12 +1,15 @@
-use aoc_lib::{parsers::signed_number, Bench, BenchResult, Day, UserError};
-use color_eyre::eyre::{eyre, Result};
+use aoc_lib::{parsers::signed_number, Bench, BenchResult, Day, ParseResult, UserError};
+use color_eyre::{
+    eyre::{eyre, Result},
+    Report,
+};
 
 pub const DAY: Day = Day {
     day: 15,
     name: "Science for Hungry People",
     part_1: run_part1,
     part_2: Some(run_part2),
-    other: &[],
+    other: &[("Parse", run_parse)],
 };
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
@@ -31,6 +34,16 @@ fn run_part2(input: &str, b: Bench) -> BenchResult {
     b.bench(|| cookie_search(&ingredients, 100, |c| c == 500))
 }
 
+fn run_parse(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| {
+        let data: Vec<_> = input
+            .lines()
+            .map(str::trim)
+            .map(Ingredient::parse)
+            .collect::<Result<_, _>>()?;
+        Ok::<_, Report>(ParseResult(data))
+    })
+}
 #[derive(Debug, PartialEq)]
 struct Ingredient {
     name: String,

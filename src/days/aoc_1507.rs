@@ -1,5 +1,8 @@
-use aoc_lib::{Bench, BenchResult, Day, UserError};
-use color_eyre::eyre::{eyre, Result};
+use aoc_lib::{Bench, BenchResult, Day, ParseResult, UserError};
+use color_eyre::{
+    eyre::{eyre, Result},
+    Report,
+};
 
 use std::collections::HashMap;
 
@@ -8,7 +11,7 @@ pub const DAY: Day = Day {
     name: "Some Assembly Required",
     part_1: run_part1,
     part_2: Some(run_part2),
-    other: &[],
+    other: &[("Parse", run_parse)],
 };
 fn run_part1(input: &str, b: Bench) -> BenchResult {
     let circuit = Circuit::parse_circuit(input).map_err(UserError)?;
@@ -18,6 +21,13 @@ fn run_part1(input: &str, b: Bench) -> BenchResult {
 fn run_part2(input: &str, b: Bench) -> BenchResult {
     let circuit = Circuit::parse_circuit(input).map_err(UserError)?;
     b.bench(|| part_2(circuit.clone()))
+}
+
+fn run_parse(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| {
+        let data = Circuit::parse_circuit(input)?;
+        Ok::<_, Report>(ParseResult(data))
+    })
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]

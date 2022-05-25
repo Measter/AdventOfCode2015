@@ -1,12 +1,15 @@
-use aoc_lib::{Bench, BenchResult, Day, NoError, UserError};
-use color_eyre::eyre::{eyre, Result};
+use aoc_lib::{Bench, BenchResult, Day, NoError, ParseResult, UserError};
+use color_eyre::{
+    eyre::{eyre, Result},
+    Report,
+};
 
 pub const DAY: Day = Day {
     day: 14,
     name: "Reindeer Olympics",
     part_1: run_part1,
     part_2: Some(run_part2),
-    other: &[],
+    other: &[("Parse", run_parse)],
 };
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
@@ -35,6 +38,17 @@ fn run_part2(input: &str, b: Bench) -> BenchResult {
         .map_err(UserError)?;
 
     b.bench(|| Ok::<_, NoError>(part2(&reindeer, 2503).1))
+}
+
+fn run_parse(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| {
+        let data: Vec<_> = input
+            .lines()
+            .map(str::trim)
+            .map(Reindeer::parse)
+            .collect::<Result<_, _>>()?;
+        Ok::<_, Report>(ParseResult(data))
+    })
 }
 
 #[derive(Debug, PartialEq)]

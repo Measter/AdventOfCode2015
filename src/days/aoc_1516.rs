@@ -1,5 +1,8 @@
-use aoc_lib::{parsers::unsigned_number, Bench, BenchResult, Day, UserError};
-use color_eyre::eyre::{eyre, Result};
+use aoc_lib::{parsers::unsigned_number, Bench, BenchResult, Day, ParseResult, UserError};
+use color_eyre::{
+    eyre::{eyre, Result},
+    Report,
+};
 use nom::bytes::complete::take_while1;
 
 pub const DAY: Day = Day {
@@ -7,7 +10,7 @@ pub const DAY: Day = Day {
     name: "Aunt Sue",
     part_1: run_part1,
     part_2: Some(run_part2),
-    other: &[],
+    other: &[("Parse", run_parse)],
 };
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
@@ -29,6 +32,16 @@ fn run_part2(input: &str, b: Bench) -> BenchResult {
         .map_err(UserError)?;
 
     b.bench(|| part2(&sues))
+}
+fn run_parse(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| {
+        let data: Vec<_> = input
+            .lines()
+            .map(str::trim)
+            .map(Sue::parse)
+            .collect::<Result<_, _>>()?;
+        Ok::<_, Report>(ParseResult(data))
+    })
 }
 
 #[derive(Debug, Default, PartialEq)]

@@ -1,5 +1,8 @@
-use aoc_lib::{parsers::split_pair, Bench, BenchResult, Day, UserError};
-use color_eyre::eyre::{eyre, Result};
+use aoc_lib::{parsers::split_pair, Bench, BenchResult, Day, ParseResult, UserError};
+use color_eyre::{
+    eyre::{eyre, Result},
+    Report,
+};
 use itertools::Itertools;
 
 use std::iter;
@@ -9,7 +12,7 @@ pub const DAY: Day = Day {
     name: "RPG Simulator 20XX",
     part_1: run_part1,
     part_2: Some(run_part2),
-    other: &[],
+    other: &[("Parse", run_parse)],
 };
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
@@ -30,9 +33,16 @@ fn run_part2(input: &str, b: Bench) -> BenchResult {
 
     b.bench(|| part2(&boss, &weapons, &armor, &rings))
 }
+fn run_parse(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| {
+        let data = Actor::parse(input)?;
+        Ok::<_, Report>(ParseResult(data))
+    })
+}
 
 #[derive(Debug)]
 struct Equipment {
+    #[allow(unused)]
     name: &'static str,
     cost: u16,
     damage: i16,

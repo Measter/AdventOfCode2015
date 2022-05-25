@@ -1,5 +1,8 @@
-use aoc_lib::{misc::ArrWindows, Bench, BenchResult, Day, UserError};
-use color_eyre::eyre::{eyre, Result};
+use aoc_lib::{misc::ArrWindows, Bench, BenchResult, Day, ParseResult, UserError};
+use color_eyre::{
+    eyre::{eyre, Result},
+    Report,
+};
 use itertools::Itertools;
 
 use std::collections::{BTreeSet, HashMap};
@@ -9,7 +12,7 @@ pub const DAY: Day = Day {
     name: "Knights of the Dinner Table",
     part_1: run_part1,
     part_2: Some(run_part2),
-    other: &[],
+    other: &[("Parse", run_parse)],
 };
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
@@ -27,6 +30,13 @@ fn run_part2(input: &str, b: Bench) -> BenchResult {
     }
     table.build_fast_lookup();
     b.bench(|| table.biggest_happiness())
+}
+
+fn run_parse(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| {
+        let data = People::parse(input)?;
+        Ok::<_, Report>(ParseResult(data))
+    })
 }
 
 #[derive(Debug, PartialEq, Clone)]

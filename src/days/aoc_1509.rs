@@ -1,5 +1,5 @@
-use aoc_lib::{misc::ArrWindows, Bench, BenchResult, Day, UserError};
-use color_eyre::eyre::Result;
+use aoc_lib::{misc::ArrWindows, Bench, BenchResult, Day, ParseResult, UserError};
+use color_eyre::{eyre::Result, Report};
 use itertools::Itertools;
 
 use std::collections::{HashMap, HashSet};
@@ -9,7 +9,7 @@ pub const DAY: Day = Day {
     name: "All in a Single Night",
     part_1: run_part1,
     part_2: Some(run_part2),
-    other: &[],
+    other: &[("Parse", run_parse)],
 };
 fn run_part1(input: &str, b: Bench) -> BenchResult {
     let map = Map::parse(input).map_err(UserError)?;
@@ -18,6 +18,12 @@ fn run_part1(input: &str, b: Bench) -> BenchResult {
 fn run_part2(input: &str, b: Bench) -> BenchResult {
     let map = Map::parse(input).map_err(UserError)?;
     b.bench(|| Map::longest(&map))
+}
+fn run_parse(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| {
+        let data = Map::parse(input)?;
+        Ok::<_, Report>(ParseResult(data))
+    })
 }
 
 #[derive(Debug, PartialEq)]

@@ -1,14 +1,17 @@
 use std::ops::{Index, IndexMut};
 
-use aoc_lib::{Bench, BenchResult, Day, NoError, UserError};
-use color_eyre::eyre::{eyre, Context, Result};
+use aoc_lib::{Bench, BenchResult, Day, NoError, ParseResult, UserError};
+use color_eyre::{
+    eyre::{eyre, Context, Result},
+    Report,
+};
 
 pub const DAY: Day = Day {
     day: 23,
     name: "Opening the Turing Lock",
     part_1: run_part1,
     part_2: Some(run_part2),
-    other: &[],
+    other: &[("Parse", run_parse)],
 };
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
@@ -43,6 +46,16 @@ fn run_part2(input: &str, b: Bench) -> BenchResult {
 
 const SEPARATORS: &[char] = &[' ', ','];
 const OFFSET_PREFIX: &[char] = &['-', '+'];
+fn run_parse(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| {
+        let data: Vec<_> = input
+            .lines()
+            .map(str::trim)
+            .map(Instruction::parse)
+            .collect::<Result<_, _>>()?;
+        Ok::<_, Report>(ParseResult(data))
+    })
+}
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 enum Register {

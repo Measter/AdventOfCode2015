@@ -1,14 +1,17 @@
 #![allow(clippy::unnecessary_wraps)]
 
-use aoc_lib::{Bench, BenchResult, Day, UserError};
-use color_eyre::eyre::{eyre, Result};
+use aoc_lib::{Bench, BenchResult, Day, ParseResult, UserError};
+use color_eyre::{
+    eyre::{eyre, Result},
+    Report,
+};
 
 pub const DAY: Day = Day {
     day: 6,
     name: "Probably a Fire Hazard",
     part_1: run_part1,
     part_2: Some(run_part2),
-    other: &[],
+    other: &[("Parse", run_parse)],
 };
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
@@ -28,6 +31,15 @@ fn run_part2(input: &str, b: Bench) -> BenchResult {
         .map_err(UserError)?;
 
     b.bench(|| part(&instructions, Operation::apply_part2))
+}
+fn run_parse(input: &str, b: Bench) -> BenchResult {
+    b.bench(|| {
+        let data: Vec<_> = input
+            .lines()
+            .map(Instruction::parse)
+            .collect::<Result<_, _>>()?;
+        Ok::<_, Report>(ParseResult(data))
+    })
 }
 
 #[derive(Debug, Clone, PartialEq)]
