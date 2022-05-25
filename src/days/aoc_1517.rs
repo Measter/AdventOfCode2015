@@ -1,14 +1,16 @@
-use aoc_lib::{day, Bench, BenchResult, UserError};
+use aoc_lib::{Bench, BenchResult, Day, UserError};
 use color_eyre::eyre::{eyre, Result};
 use itertools::Itertools;
 
 use std::num::ParseIntError;
 
-day! {
-    day 17: "No Such Thing as Too Much"
-    1: run_part1
-    2: run_part2
-}
+pub const DAY: Day = Day {
+    day: 17,
+    name: "No Such Thing as Too Much",
+    part_1: run_part1,
+    part_2: Some(run_part2),
+    other: &[],
+};
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
     let containers: Vec<_> = input

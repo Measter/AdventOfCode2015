@@ -1,13 +1,15 @@
 #![allow(clippy::unnecessary_wraps)]
 
-use aoc_lib::{day, Bench, BenchResult};
+use aoc_lib::{Bench, BenchResult, Day};
 use color_eyre::eyre::{eyre, Result};
 
-day! {
-    day 1: "Not Quite Lisp"
-    1: run_part1
-    2: run_part2
-}
+pub const DAY: Day = Day {
+    day: 1,
+    name: "Not Quite Lisp",
+    part_1: run_part1,
+    part_2: Some(run_part2),
+    other: &[],
+};
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
     b.bench(|| part1(input))

@@ -1,11 +1,13 @@
-use aoc_lib::{day, misc::ArrWindows, Bench, BenchResult};
+use aoc_lib::{misc::ArrWindows, Bench, BenchResult, Day};
 use color_eyre::eyre::{eyre, Result};
 
-day! {
-    day 11: "Corporate Policy"
-    1: run_part1
-    2: run_part2
-}
+pub const DAY: Day = Day {
+    day: 11,
+    name: "Corporate Policy",
+    part_1: run_part1,
+    part_2: Some(run_part2),
+    other: &[],
+};
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
     b.bench(|| part1_next_password(input))
@@ -19,7 +21,7 @@ fn banned_char(c: char) -> bool {
     c == 'i' || c == 'o' || c == 'l'
 }
 
-fn part1_validity(char_buffer: &mut Vec<char>) -> bool {
+fn part1_validity(char_buffer: &[char]) -> bool {
     let has_banned_letters = char_buffer.iter().any(|&c| banned_char(c));
 
     if has_banned_letters {
@@ -77,7 +79,7 @@ fn part1_next_password(pswd: &str) -> Result<String> {
 
         char_buffer.reverse();
 
-        if part1_validity(&mut char_buffer) {
+        if part1_validity(&char_buffer) {
             return Ok(char_buffer.into_iter().collect());
         }
     }
@@ -106,7 +108,7 @@ mod tests_1511 {
         for &(pswd, expected) in &tests {
             char_buf.clear();
             char_buf.extend(pswd.chars());
-            assert_eq!(part1_validity(&mut char_buf), expected, "{}", pswd);
+            assert_eq!(part1_validity(&char_buf), expected, "{}", pswd);
         }
     }
 

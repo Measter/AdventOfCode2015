@@ -1,11 +1,13 @@
-use aoc_lib::{day, parsers::signed_number, Bench, BenchResult, UserError};
+use aoc_lib::{parsers::signed_number, Bench, BenchResult, Day, UserError};
 use color_eyre::eyre::{eyre, Result};
 
-day! {
-    day 15: "Science for Hungry People"
-    1: run_part1
-    2: run_part2
-}
+pub const DAY: Day = Day {
+    day: 15,
+    name: "Science for Hungry People",
+    part_1: run_part1,
+    part_2: Some(run_part2),
+    other: &[],
+};
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
     let ingredients: Vec<_> = input

@@ -1,14 +1,16 @@
-use aoc_lib::{day, misc::ArrWindows, Bench, BenchResult, UserError};
+use aoc_lib::{misc::ArrWindows, Bench, BenchResult, Day, UserError};
 use color_eyre::eyre::{eyre, Result};
 use itertools::Itertools;
 
 use std::collections::{BTreeSet, HashMap};
 
-day! {
-    day 13: "Knights of the Dinner Table"
-    1: run_part1
-    2: run_part2
-}
+pub const DAY: Day = Day {
+    day: 13,
+    name: "Knights of the Dinner Table",
+    part_1: run_part1,
+    part_2: Some(run_part2),
+    other: &[],
+};
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
     let mut table = People::parse(input).map_err(UserError)?;

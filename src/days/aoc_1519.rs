@@ -1,12 +1,15 @@
-use aoc_lib::{day, Bench, BenchResult, UserError};
+use aoc_lib::{Bench, BenchResult, Day, UserError};
 use color_eyre::eyre::{eyre, Result};
 
 use std::collections::{HashMap, HashSet};
 
-day! {
-    day 19: "Medicine for Rudolph"
-    1: run_part1
-}
+pub const DAY: Day = Day {
+    day: 19,
+    name: "Medicine for Rudolph",
+    part_1: run_part1,
+    part_2: None,
+    other: &[],
+};
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
     let (mappings, input) = parse_input(input).map_err(UserError)?;

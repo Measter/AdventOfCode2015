@@ -1,10 +1,12 @@
-use aoc_lib::{day, misc::ArrWindows, Bench, BenchResult, NoError};
+use aoc_lib::{misc::ArrWindows, Bench, BenchResult, Day, NoError};
 
-day! {
-    day 5: "Doesn't He Have Intern-Elves For This?"
-    1: run_part1
-    2: run_part2
-}
+pub const DAY: Day = Day {
+    day: 5,
+    name: "Doesn't He Have Intern-Elves For This?",
+    part_1: run_part1,
+    part_2: Some(run_part2),
+    other: &[],
+};
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
     b.bench(|| {

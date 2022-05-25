@@ -1,15 +1,16 @@
-use aoc_lib::{day, misc::ArrWindows, Bench, BenchResult, UserError};
+use aoc_lib::{misc::ArrWindows, Bench, BenchResult, Day, UserError};
 use color_eyre::eyre::Result;
 use itertools::Itertools;
 
 use std::collections::{HashMap, HashSet};
 
-day! {
-    day 9: "All in a Single Night"
-    1: run_part1
-    2: run_part2
-}
-
+pub const DAY: Day = Day {
+    day: 9,
+    name: "All in a Single Night",
+    part_1: run_part1,
+    part_2: Some(run_part2),
+    other: &[],
+};
 fn run_part1(input: &str, b: Bench) -> BenchResult {
     let map = Map::parse(input).map_err(UserError)?;
     b.bench(|| Map::shortest(&map))

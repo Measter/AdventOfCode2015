@@ -1,12 +1,14 @@
-use aoc_lib::{day, parsers::unsigned_number, Bench, BenchResult, UserError};
+use aoc_lib::{parsers::unsigned_number, Bench, BenchResult, Day, UserError};
 use color_eyre::eyre::{eyre, Result};
 use nom::bytes::complete::take_while1;
 
-day! {
-    day 16: "Aunt Sue"
-    1: run_part1
-    2: run_part2
-}
+pub const DAY: Day = Day {
+    day: 16,
+    name: "Aunt Sue",
+    part_1: run_part1,
+    part_2: Some(run_part2),
+    other: &[],
+};
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
     let sues: Vec<_> = input

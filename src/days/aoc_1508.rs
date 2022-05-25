@@ -1,10 +1,12 @@
-use aoc_lib::{day, Bench, BenchResult, NoError};
+use aoc_lib::{Bench, BenchResult, Day, NoError};
 
-day! {
-    day 8: "Matchsticks"
-    1: run_part1
-    2: run_part2
-}
+pub const DAY: Day = Day {
+    day: 8,
+    name: "Matchsticks",
+    part_1: run_part1,
+    part_2: Some(run_part2),
+    other: &[],
+};
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
     b.bench(|| {

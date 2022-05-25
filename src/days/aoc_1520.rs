@@ -1,11 +1,13 @@
-use aoc_lib::{day, Bench, BenchResult, UserError};
+use aoc_lib::{Bench, BenchResult, Day, UserError};
 use color_eyre::eyre::{eyre, Result};
 
-day! {
-    day 20: "Infinite Elves and Infinite Houses"
-    1: run_part1
-    2: run_part2
-}
+pub const DAY: Day = Day {
+    day: 20,
+    name: "Infinite Elves and Infinite Houses",
+    part_1: run_part1,
+    part_2: Some(run_part2),
+    other: &[],
+};
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
     let input = input.trim().parse::<usize>().map_err(UserError)?;

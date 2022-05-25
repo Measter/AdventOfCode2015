@@ -1,11 +1,14 @@
-use aoc_lib::{day, Bench, BenchResult, NoError};
+use aoc_lib::{Bench, BenchResult, Day, NoError};
 use itertools::Itertools;
+use itoa::Buffer;
 
-day! {
-    day 10: "Elves Look, Elves Say"
-    1: run_part1
-    2: run_part2
-}
+pub const DAY: Day = Day {
+    day: 10,
+    name: "Elves Look, Elves Say",
+    part_1: run_part1,
+    part_2: Some(run_part2),
+    other: &[],
+};
 
 fn run_part1(input: &str, b: Bench) -> BenchResult {
     b.bench(|| Ok::<_, NoError>(looksay(input.to_owned(), 40).len()))
@@ -17,12 +20,12 @@ fn run_part2(input: &str, b: Bench) -> BenchResult {
 fn looksay(input: String, iterations: usize) -> String {
     let mut buf_a = input;
     let mut buf_b = String::new();
+    let mut fmt_buf = Buffer::new();
 
     for _ in 0..iterations {
         for (ch, run) in &buf_a.chars().group_by(|c| *c) {
-            itoa::fmt(&mut buf_b, run.count()).unwrap();
+            buf_b.push_str(fmt_buf.format(run.count()));
             buf_b.push(ch);
-            //write!(&mut buf_b, "{}{}", run.count(), ch).unwrap();
         }
 
         std::mem::swap(&mut buf_a, &mut buf_b);

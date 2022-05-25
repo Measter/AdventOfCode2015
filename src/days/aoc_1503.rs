@@ -1,4 +1,4 @@
-use aoc_lib::{day, BenchResult, UserError};
+use aoc_lib::{BenchResult, Day, UserError};
 use color_eyre::{
     eyre::{eyre, Result},
     Report,
@@ -6,11 +6,13 @@ use color_eyre::{
 
 use std::collections::HashSet;
 
-day! {
-    day 3: "Perfectly Spherical Houses in a Vacuum"
-    1: run_part1
-    2: run_part2
-}
+pub const DAY: Day = Day {
+    day: 3,
+    name: "Perfectly Spherical Houses in a Vacuum",
+    part_1: run_part1,
+    part_2: Some(run_part2),
+    other: &[],
+};
 
 fn run_part1(input: &str, b: aoc_lib::Bench) -> BenchResult {
     let moves = input.parse::<MoveList>().map_err(UserError)?;
