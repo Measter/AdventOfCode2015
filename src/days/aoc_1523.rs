@@ -44,8 +44,6 @@ fn run_part2(input: &str, b: Bench) -> BenchResult {
     })
 }
 
-const SEPARATORS: &[char] = &[' ', ','];
-const OFFSET_PREFIX: &[char] = &['-', '+'];
 fn run_parse(input: &str, b: Bench) -> BenchResult {
     b.bench(|| {
         let data: Vec<_> = input
@@ -56,6 +54,9 @@ fn run_parse(input: &str, b: Bench) -> BenchResult {
         Ok::<_, Report>(ParseResult(data))
     })
 }
+
+const SEPARATORS: [char; 2] = [' ', ','];
+const OFFSET_PREFIX: [char; 2] = ['-', '+'];
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 enum Register {

@@ -44,9 +44,10 @@ fn run_parse(input: &str, b: Bench) -> BenchResult {
         Ok::<_, Report>(ParseResult(data))
     })
 }
+
 #[derive(Debug, PartialEq)]
-struct Ingredient {
-    name: String,
+struct Ingredient<'a> {
+    name: &'a str,
     capacity: i32,
     durability: i32,
     flavor: i32,
@@ -54,8 +55,8 @@ struct Ingredient {
     calories: i32,
 }
 
-impl Ingredient {
-    fn parse(line: &str) -> Result<Ingredient> {
+impl<'a> Ingredient<'a> {
+    fn parse(line: &'a str) -> Result<Ingredient> {
         use nom::{
             bytes::complete::{tag, take_while1},
             sequence::tuple,
@@ -81,7 +82,7 @@ impl Ingredient {
         .map_err(|e| eyre!("Error parsing input: {}", e))?;
 
         Ok(Self {
-            name: name.to_owned(),
+            name,
             flavor: flavor?,
             capacity: capacity?,
             durability: durability?,
@@ -220,7 +221,7 @@ mod tests_1515 {
 
         let expected = [
             Ingredient {
-                name: "Butterscotch".to_owned(),
+                name: "Butterscotch",
                 capacity: -1,
                 durability: -2,
                 flavor: 6,
@@ -228,7 +229,7 @@ mod tests_1515 {
                 calories: 8,
             },
             Ingredient {
-                name: "Cinnamon".to_owned(),
+                name: "Cinnamon",
                 capacity: 2,
                 durability: 3,
                 flavor: -2,
@@ -251,7 +252,7 @@ mod tests_1515 {
     fn score_test() {
         let ingrediants = [
             Ingredient {
-                name: "Butterscotch".to_owned(),
+                name: "Butterscotch",
                 capacity: -1,
                 durability: -2,
                 flavor: 6,
@@ -259,7 +260,7 @@ mod tests_1515 {
                 calories: 8,
             },
             Ingredient {
-                name: "Cinnamon".to_owned(),
+                name: "Cinnamon",
                 capacity: 2,
                 durability: 3,
                 flavor: -2,

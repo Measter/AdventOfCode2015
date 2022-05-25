@@ -52,9 +52,7 @@ struct LightArray {
 
 impl LightArray {
     fn parse(input: &str) -> Result<LightArray> {
-        let size = input
-            .find(['\n', '\r'].as_ref())
-            .unwrap_or_else(|| input.len());
+        let size = input.find(['\n', '\r']).unwrap_or(input.len());
 
         let array: Vec<_> = input
             .lines()
