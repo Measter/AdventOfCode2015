@@ -1,6 +1,7 @@
 #![allow(clippy::unnecessary_wraps)]
 
 use aoc_lib::{Bench, BenchResult, Day, ParseResult, UserError};
+use chumsky::Parser;
 use color_eyre::{
     eyre::{eyre, Result},
     Report,
@@ -53,40 +54,27 @@ struct Instruction {
 
 impl Instruction {
     fn parse(line: &str) -> Result<Instruction> {
-        use nom::{
-            branch::alt,
-            bytes::complete::{tag, take_while1},
-            sequence::separated_pair,
-        };
+        fn parser<'a>() -> impl Parser<'a, &'a str, (Operation, (usize, usize), (usize, usize))> {
+            use chumsky::{primitive::just, text::int};
 
-        let (rest, op_type) =
-            alt::<_, _, (), _>((tag("toggle"), tag("turn on"), tag("turn off")))(line)?;
+            let op_type = just("toggle")
+                .to(Operation::Toggle)
+                .or(just("turn on").to(Operation::On))
+                .or(just("turn off").to(Operation::Off));
+            let number = int(10).from_str::<usize>().unwrapped();
+            let coordinate_pair = number.then_ignore(just(",")).then(number);
 
-        let (rest, (top, left)) = separated_pair::<_, _, _, _, (), _, _, _>(
-            take_while1(char::is_numeric),
-            tag(","),
-            take_while1(char::is_numeric),
-        )(rest.trim())?;
+            op_type
+                .then(coordinate_pair.padded())
+                .then_ignore(just("through "))
+                .then(coordinate_pair)
+                .map(|((a, b), c)| (a, b, c))
+        }
 
-        let (rest, _) = tag::<_, _, ()>(" through ")(rest)?;
-
-        let (_, (bottom, right)) = separated_pair::<_, _, _, _, (), _, _, _>(
-            take_while1(char::is_numeric),
-            tag(","),
-            take_while1(char::is_numeric),
-        )(rest.trim())?;
-
-        let top = top.parse()?;
-        let left = left.parse()?;
-        let bottom = bottom.parse()?;
-        let right = right.parse()?;
-
-        let op = match op_type {
-            "turn off" => Operation::Off,
-            "turn on" => Operation::On,
-            "toggle" => Operation::Toggle,
-            _ => return Err(eyre!("Invalid operation type: {}", op_type)),
-        };
+        let (op, (top, left), (bottom, right)) = parser()
+            .parse(line)
+            .into_output()
+            .ok_or_else(|| eyre!("Failed to parse `{line:?}`"))?;
 
         Ok(Instruction {
             op,

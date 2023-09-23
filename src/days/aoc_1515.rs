@@ -1,4 +1,7 @@
-use aoc_lib::{parsers::signed_number, Bench, BenchResult, Day, ParseResult, UserError};
+use std::ops::Neg;
+
+use aoc_lib::{Bench, BenchResult, Day, ParseResult, UserError};
+use chumsky::Parser;
 use color_eyre::{
     eyre::{eyre, Result},
     Report,
@@ -57,38 +60,46 @@ struct Ingredient<'a> {
 
 impl<'a> Ingredient<'a> {
     fn parse(line: &'a str) -> Result<Ingredient> {
-        use nom::{
-            bytes::complete::{tag, take_while1},
-            sequence::tuple,
-        };
+        fn parse_line<'a>() -> impl Parser<'a, &'a str, Ingredient<'a>> {
+            use chumsky::{
+                primitive::just,
+                text::{ident, int},
+            };
 
-        let (rm, (name, _, capacity, _, durability)) = tuple((
-            take_while1(char::is_alphabetic),
-            tag(": capacity "),
-            signed_number::<i32>,
-            tag(", durability "),
-            signed_number::<i32>,
-        ))(line)
-        .map_err(|e| eyre!("Error parsing input: {}", e))?;
+            let integer = int(10).from_str::<i32>().unwrapped();
+            let number = just("-").ignore_then(integer.map(Neg::neg)).or(integer);
 
-        let (_, (_, flavor, _, texture, _, calories)) = tuple((
-            tag(", flavor "),
-            signed_number::<i32>,
-            tag(", texture "),
-            signed_number::<i32>,
-            tag(", calories "),
-            signed_number::<i32>,
-        ))(rm)
-        .map_err(|e| eyre!("Error parsing input: {}", e))?;
+            ident()
+                .then_ignore(just(": capacity "))
+                .then(number)
+                .boxed()
+                .then_ignore(just(", durability "))
+                .then(number)
+                .then_ignore(just(", flavor "))
+                .boxed()
+                .then(number)
+                .then_ignore(just(", texture "))
+                .then(number)
+                .boxed()
+                .then_ignore(just(", calories "))
+                .then(number)
+                .boxed()
+                .map(
+                    |(((((name, capacity), durability), flavor), texture), calories)| Ingredient {
+                        name,
+                        capacity,
+                        durability,
+                        flavor,
+                        texture,
+                        calories,
+                    },
+                )
+        }
 
-        Ok(Self {
-            name,
-            flavor: flavor?,
-            capacity: capacity?,
-            durability: durability?,
-            texture: texture?,
-            calories: calories?,
-        })
+        parse_line()
+            .parse(line)
+            .into_output()
+            .ok_or_else(|| eyre!("Failed to parse `{line:?}`"))
     }
 }
 

@@ -1,4 +1,5 @@
 use aoc_lib::{Bench, BenchResult, Day, NoError, ParseResult, UserError};
+use chumsky::Parser;
 use color_eyre::{
     eyre::{eyre, Result},
     Report,
@@ -61,29 +62,40 @@ struct Reindeer {
 
 impl Reindeer {
     fn parse(line: &str) -> Result<Self> {
-        use nom::{
-            bytes::complete::{tag, take_till1, take_while1},
-            sequence::tuple,
-        };
+        fn parse_line<'a>() -> impl Parser<'a, &'a str, Reindeer> {
+            use chumsky::{
+                primitive::just,
+                text::{ident, int},
+            };
 
-        let (_, (name, _, flight_speed, _, flight_time, _, rest_time, _)) =
-            tuple::<_, _, (), _>((
-                take_till1(char::is_whitespace),
-                tag(" can fly "),
-                take_while1(|c: char| c.is_ascii_digit()),
-                tag(" km/s for "),
-                take_while1(|c: char| c.is_ascii_digit()),
-                tag(" seconds, but then must rest for "),
-                take_while1(|c: char| c.is_ascii_digit()),
-                tag(" seconds."),
-            ))(line)?;
+            let number = int(10).from_str::<u32>().unwrapped();
 
-        Ok(Reindeer {
-            name: name.to_owned(),
-            flight_speed: flight_speed.parse()?,
-            flight_time: flight_time.parse()?,
-            rest_time: rest_time.parse()?,
-        })
+            ident()
+                .map(str::to_owned)
+                .then_ignore(just("can fly").padded())
+                .boxed()
+                .then(number)
+                .then_ignore(just("km/s for").padded())
+                .then(number)
+                .boxed()
+                .then_ignore(just("seconds, but then must rest for").padded())
+                .then(number)
+                .then_ignore(just(" seconds."))
+                .boxed()
+                .map(
+                    |(((name, flight_speed), flight_time), rest_time)| Reindeer {
+                        name,
+                        flight_speed,
+                        flight_time,
+                        rest_time,
+                    },
+                )
+        }
+
+        parse_line()
+            .parse(line)
+            .into_output()
+            .ok_or_else(|| eyre!("Failed to parse `{line:?}`"))
     }
 
     fn distance(&self, total_flight_time: u32) -> u32 {

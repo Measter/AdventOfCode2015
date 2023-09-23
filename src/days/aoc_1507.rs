@@ -1,10 +1,11 @@
 use aoc_lib::{Bench, BenchResult, Day, ParseResult, UserError};
+use chumsky::Parser;
 use color_eyre::{
     eyre::{eyre, Result},
     Report,
 };
 
-use std::collections::HashMap;
+use std::{cell::RefCell, collections::HashMap};
 
 pub const DAY: Day = Day {
     day: 7,
@@ -30,55 +31,60 @@ fn run_parse(input: &str, b: Bench) -> BenchResult {
     })
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+struct WireId(u16);
+
 #[derive(Debug, PartialEq, Clone, Copy)]
-enum Input<'a> {
+enum Input {
     Number(u16),
-    Wire(&'a str),
+    Wire(WireId),
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
-enum Component<'a> {
+enum Component {
     Const {
-        input: Input<'a>,
-        output: &'a str,
+        input: Input,
+        output: WireId,
     },
     And {
-        input_a: Input<'a>,
-        input_b: Input<'a>,
-        output: &'a str,
+        input_a: Input,
+        input_b: Input,
+        output: WireId,
     },
     Or {
-        input_a: Input<'a>,
-        input_b: Input<'a>,
-        output: &'a str,
+        input_a: Input,
+        input_b: Input,
+        output: WireId,
     },
     LShift {
-        input_a: Input<'a>,
-        input_b: Input<'a>,
-        output: &'a str,
+        input_a: Input,
+        input_b: Input,
+        output: WireId,
     },
     RShift {
-        input_a: Input<'a>,
-        input_b: Input<'a>,
-        output: &'a str,
+        input_a: Input,
+        input_b: Input,
+        output: WireId,
     },
     Not {
-        input: Input<'a>,
-        output: &'a str,
+        input: Input,
+        output: WireId,
     },
 }
 
 #[derive(Debug, PartialEq, Clone)]
-struct Circuit<'a> {
-    wires: HashMap<&'a str, Option<u16>>,
-    components: Vec<Component<'a>>,
+struct Circuit {
+    wires: Vec<Option<u16>>,
+    components: Vec<Component>,
+    a_id: WireId,
+    b_id: WireId,
 }
 
-impl<'a> Circuit<'a> {
+impl Circuit {
     fn get_wire_val(&self, key: Input) -> Option<u16> {
         match key {
             Input::Number(n) => Some(n),
-            Input::Wire(key) => self.wires.get(key).copied().flatten(),
+            Input::Wire(key) => self.wires[key.0 as usize],
         }
     }
 
@@ -88,16 +94,16 @@ impl<'a> Circuit<'a> {
                 use Component::*;
                 match comp {
                     Const { input, output } => {
-                        if let (Some(val), Some(output @ None)) =
-                            (self.get_wire_val(input), self.wires.get_mut(output))
+                        if let (Some(val), output @ None) =
+                            (self.get_wire_val(input), &mut self.wires[output.0 as usize])
                         {
                             *output = Some(val);
                         }
                     }
 
                     Not { input, output } => {
-                        if let (Some(val), Some(output @ None)) =
-                            (self.get_wire_val(input), self.wires.get_mut(output))
+                        if let (Some(val), output @ None) =
+                            (self.get_wire_val(input), &mut self.wires[output.0 as usize])
                         {
                             *output = Some(!val);
                         }
@@ -108,10 +114,10 @@ impl<'a> Circuit<'a> {
                         input_b,
                         output,
                     } => {
-                        if let (Some(a), Some(b), Some(output @ None)) = (
+                        if let (Some(a), Some(b), output @ None) = (
                             self.get_wire_val(input_a),
                             self.get_wire_val(input_b),
-                            self.wires.get_mut(output),
+                            &mut self.wires[output.0 as usize],
                         ) {
                             *output = Some(a & b);
                         }
@@ -122,10 +128,10 @@ impl<'a> Circuit<'a> {
                         input_b,
                         output,
                     } => {
-                        if let (Some(a), Some(b), Some(output @ None)) = (
+                        if let (Some(a), Some(b), output @ None) = (
                             self.get_wire_val(input_a),
                             self.get_wire_val(input_b),
-                            self.wires.get_mut(output),
+                            &mut self.wires[output.0 as usize],
                         ) {
                             *output = Some(a | b);
                         }
@@ -136,10 +142,10 @@ impl<'a> Circuit<'a> {
                         input_b,
                         output,
                     } => {
-                        if let (Some(a), Some(b), Some(output @ None)) = (
+                        if let (Some(a), Some(b), output @ None) = (
                             self.get_wire_val(input_a),
                             self.get_wire_val(input_b),
-                            self.wires.get_mut(output),
+                            &mut self.wires[output.0 as usize],
                         ) {
                             *output = Some(a << b);
                         }
@@ -150,10 +156,10 @@ impl<'a> Circuit<'a> {
                         input_b,
                         output,
                     } => {
-                        if let (Some(a), Some(b), Some(output @ None)) = (
+                        if let (Some(a), Some(b), output @ None) = (
                             self.get_wire_val(input_a),
                             self.get_wire_val(input_b),
-                            self.wires.get_mut(output),
+                            &mut self.wires[output.0 as usize],
                         ) {
                             *output = Some(a >> b);
                         }
@@ -163,96 +169,103 @@ impl<'a> Circuit<'a> {
         }
     }
 
-    fn parse_circuit(input: &'a str) -> Result<Circuit<'a>> {
-        use nom::{
-            branch::alt,
-            bytes::complete::{tag, take_till1, take_while1},
-            sequence::{separated_pair, tuple},
+    fn parse_circuit(input: &str) -> Result<Circuit> {
+        let wire_ids = RefCell::new(HashMap::new());
+
+        let get_wire_id = |s: &str| -> WireId {
+            let mut wire_ids = wire_ids.borrow_mut();
+            if let Some(id) = wire_ids.get(s) {
+                return *id;
+            }
+
+            let id = WireId(wire_ids.len() as u16);
+            wire_ids.insert(s.to_owned(), id);
+            id
         };
 
-        let mut wires = HashMap::new();
         let mut components = Vec::new();
+        let a_id = get_wire_id("a");
+        let b_id = get_wire_id("b");
 
         for line in input.lines().map(str::trim) {
-            let (_, (component, output)) = separated_pair::<_, _, _, _, (), _, _, _>(
-                take_till1(|c| c == '-'),
-                tag("->"),
-                take_while1(|_| true),
-            )(line)?;
+            let (input, output) = line
+                .split_once(" -> ")
+                .ok_or_else(|| eyre!("Unable to parse `{line:?}`"))?;
 
-            let (_, component) = alt::<_, _, (), _>((
-                tuple((
-                    take_till1(|c| c == ' '),
-                    tag(" AND "),
-                    take_while1(|_| true),
-                )),
-                tuple((take_till1(|c| c == ' '), tag(" OR "), take_while1(|_| true))),
-                tuple((
-                    take_till1(|c| c == ' '),
-                    tag(" RSHIFT "),
-                    take_while1(|_| true),
-                )),
-                tuple((
-                    take_till1(|c| c == ' '),
-                    tag(" LSHIFT "),
-                    take_while1(|_| true),
-                )),
-                tuple((tag("NOT "), take_till1(char::is_whitespace), tag(""))),
-                tuple((
-                    take_while1(|c: char| c.is_ascii_alphanumeric()),
-                    tag(""),
-                    tag(""),
-                )),
-            ))(component.trim())?;
+            fn component_parser<'a, 'b: 'a>(
+                output: WireId,
+                id_gen: &'b impl Fn(&'a str) -> WireId,
+            ) -> impl Parser<'a, &'a str, Component> {
+                use chumsky::{
+                    primitive::just,
+                    text::{ident, int},
+                };
 
-            let output = output.trim();
-            wires.entry(output).or_default();
+                let num_constant = int(10).from_str::<u16>().unwrapped().map(Input::Number);
+                let wire_name = ident().map(id_gen).map(Input::Wire);
+                let input = num_constant.or(wire_name);
 
-            let mut parse_input = |input: &'a str| {
-                if let Ok(c) = input.parse() {
-                    Input::Number(c)
-                } else {
-                    wires.entry(input).or_default();
-                    Input::Wire(input)
-                }
-            };
+                let not = just("NOT ")
+                    .ignore_then(input)
+                    .map(move |input| Component::Not { input, output });
 
-            let component = match component {
-                (a, " RSHIFT ", b) => Component::RShift {
-                    input_a: parse_input(a),
-                    input_b: parse_input(b),
-                    output,
-                },
-                (a, " OR ", b) => Component::Or {
-                    input_a: parse_input(a),
-                    input_b: parse_input(b),
-                    output,
-                },
-                (a, " AND ", b) => Component::And {
-                    input_a: parse_input(a),
-                    input_b: parse_input(b),
-                    output,
-                },
-                (a, " LSHIFT ", b) => Component::LShift {
-                    input_a: parse_input(a),
-                    input_b: parse_input(b),
-                    output,
-                },
+                let and = input.then_ignore(just("AND").padded()).then(input).map(
+                    move |(input_a, input_b)| Component::And {
+                        input_a,
+                        input_b,
+                        output,
+                    },
+                );
 
-                ("NOT ", a, _) => Component::Not {
-                    input: parse_input(a),
-                    output,
-                },
-                (a, _, _) => Component::Const {
-                    input: parse_input(a),
-                    output,
-                },
-            };
+                let or = input.then_ignore(just("OR").padded()).then(input).map(
+                    move |(input_a, input_b)| Component::Or {
+                        input_a,
+                        input_b,
+                        output,
+                    },
+                );
+
+                let lshift = input.then_ignore(just("LSHIFT").padded()).then(input).map(
+                    move |(input_a, input_b)| Component::LShift {
+                        input_a,
+                        input_b,
+                        output,
+                    },
+                );
+
+                let rshift = input.then_ignore(just("RSHIFT").padded()).then(input).map(
+                    move |(input_a, input_b)| Component::RShift {
+                        input_a,
+                        input_b,
+                        output,
+                    },
+                );
+
+                not.or(and)
+                    .or(or)
+                    .boxed()
+                    .or(lshift)
+                    .or(rshift)
+                    .boxed()
+                    .or(input.map(move |input| Component::Const { input, output }))
+            }
+
+            let output_id = get_wire_id(output.trim());
+            let component = component_parser(output_id, &get_wire_id)
+                .parse(input.trim())
+                .into_output()
+                .ok_or_else(|| eyre!("Unable to parse `{line:?}`"))?;
 
             components.push(component);
         }
 
-        Ok(Circuit { wires, components })
+        let wire_ids = wire_ids.into_inner();
+        Ok(Circuit {
+            wires: vec![None; wire_ids.len()],
+            components,
+            a_id,
+            b_id,
+        })
     }
 }
 
@@ -260,32 +273,22 @@ fn part_1(mut circuit: Circuit) -> Result<u16> {
     let mut counter = 0;
     circuit.evaluate(|c| {
         counter += 1;
-        c.wires.values().any(Option::is_none) && counter < 1000
+        c.wires.iter().any(Option::is_none) && counter < 1000
     });
 
-    circuit
-        .wires
-        .get("a")
-        .copied()
-        .flatten()
-        .ok_or_else(|| eyre!("Wire not found: a"))
+    circuit.wires[circuit.a_id.0 as usize].ok_or_else(|| eyre!("Wire not found: a"))
 }
 
 fn part_2(mut circuit: Circuit) -> Result<u16> {
-    *circuit.wires.get_mut("b").unwrap() = Some(46065);
+    circuit.wires[circuit.b_id.0 as usize] = Some(46065);
 
     let mut counter = 0;
     circuit.evaluate(|c| {
         counter += 1;
-        c.wires.values().any(Option::is_none) && counter < 1000
+        c.wires.iter().any(Option::is_none) && counter < 1000
     });
 
-    circuit
-        .wires
-        .get("a")
-        .copied()
-        .flatten()
-        .ok_or_else(|| eyre!("Wire not found: a"))
+    circuit.wires[circuit.a_id.0 as usize].ok_or_else(|| eyre!("Wire not found: a"))
 }
 
 #[cfg(test)]
@@ -303,26 +306,25 @@ mod tests_1507 {
         NOT x -> h
         NOT y -> i";
 
-        let expected: HashMap<_, _> = [
-            ("d", Some(72)),
-            ("e", Some(507)),
-            ("f", Some(492)),
-            ("g", Some(114)),
-            ("h", Some(65412)),
-            ("i", Some(65079)),
-            ("x", Some(123)),
-            ("y", Some(456)),
-        ]
-        .iter()
-        .cloned()
-        .collect();
+        let expected: Vec<Option<u16>> = vec![
+            None,        // a
+            None,        // b
+            Some(123),   // x
+            Some(456),   // y
+            Some(72),    // d
+            Some(507),   // e
+            Some(492),   // f
+            Some(114),   // g
+            Some(65412), // h
+            Some(65079), // i
+        ];
 
         let mut circuit = Circuit::parse_circuit(circuit_str).unwrap();
 
         let mut counter = 0;
         circuit.evaluate(|c| {
             counter += 1;
-            c.wires.values().any(Option::is_none) && counter < 100
+            c.wires.iter().any(Option::is_none) && counter < 100
         });
 
         assert_eq!(expected, circuit.wires);

@@ -1,4 +1,6 @@
 use aoc_lib::{misc::ArrWindows, Bench, BenchResult, Day, ParseResult, UserError};
+use chumsky::Parser;
+use color_eyre::eyre::eyre;
 use color_eyre::{eyre::Result, Report};
 use itertools::Itertools;
 
@@ -34,27 +36,36 @@ struct Map<'a> {
 
 impl<'a> Map<'a> {
     fn parse(input: &str) -> Result<Map> {
-        use nom::{
-            bytes::complete::{tag, take_till1, take_while1},
-            sequence::tuple,
-        };
-
         let mut locations = HashSet::new();
         let mut distances = HashMap::new();
 
         for line in input.lines().map(str::trim) {
-            let (_, (start, _, finish, _, distance)) = tuple::<_, _, (), _>((
-                take_till1(char::is_whitespace),
-                tag(" to "),
-                take_till1(char::is_whitespace),
-                tag(" = "),
-                take_while1(|c: char| c.is_ascii_digit()),
-            ))(line)?;
+            fn distance_parser<'a>() -> impl Parser<'a, &'a str, (&'a str, &'a str, u32)> {
+                use chumsky::{
+                    primitive::just,
+                    text::{ident, int},
+                };
+                let distance = int(10).from_str::<u32>().unwrapped();
+
+                ident()
+                    .then_ignore(just("to").padded())
+                    .boxed()
+                    .then(ident())
+                    .then_ignore(just('=').padded())
+                    .boxed()
+                    .then(distance)
+                    .map(|((a, b), c)| (a, b, c))
+            }
+
+            let (start, finish, distance) = distance_parser()
+                .parse(line)
+                .into_output()
+                .ok_or_else(|| eyre!("Failed to parse `{line:?}`"))?;
 
             locations.insert(start);
             locations.insert(finish);
-            distances.insert((start, finish), distance.parse()?);
-            distances.insert((finish, start), distance.parse()?);
+            distances.insert((start, finish), distance);
+            distances.insert((finish, start), distance);
         }
 
         Ok(Map {

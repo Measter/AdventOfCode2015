@@ -1,4 +1,4 @@
-use aoc_lib::{parsers::split_pair, Bench, BenchResult, Day, ParseResult, UserError};
+use aoc_lib::{Bench, BenchResult, Day, ParseResult, UserError};
 use color_eyre::{
     eyre::{eyre, Result},
     Report,
@@ -127,18 +127,18 @@ impl Actor {
 
         let (_, hp) = lines
             .next()
-            .ok_or_else(|| eyre!("Invalid boss input"))
-            .and_then(|l| Ok(split_pair(l, ": ")?))?;
+            .and_then(|l| l.split_once(": "))
+            .ok_or_else(|| eyre!("Invalid boss input"))?;
 
         let (_, damage) = lines
             .next()
-            .ok_or_else(|| eyre!("Invalid boss input"))
-            .and_then(|l| Ok(split_pair(l, ": ")?))?;
+            .and_then(|l| l.split_once(": "))
+            .ok_or_else(|| eyre!("Invalid boss input"))?;
 
         let (_, armor) = lines
             .next()
-            .ok_or_else(|| eyre!("Invalid boss input"))
-            .and_then(|l| Ok(split_pair(l, ": ")?))?;
+            .and_then(|l| l.split_once(": "))
+            .ok_or_else(|| eyre!("Invalid boss input"))?;
 
         Ok(Actor {
             hp: hp.parse()?,

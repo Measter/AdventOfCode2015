@@ -32,17 +32,10 @@ fn parse_input(input: &str) -> Result<(HashMap<&str, Vec<&str>>, &str)> {
 
     let mut lines = input.lines().map(str::trim);
     for line in (&mut lines).take_while(|l| !l.is_empty()) {
-        use nom::{
-            bytes::complete::{tag, take_while1},
-            sequence::tuple,
-        };
-
-        let (_, (from, _, to)) = tuple::<_, _, (), _>((
-            take_while1(char::is_alphabetic),
-            tag(" => "),
-            take_while1(char::is_alphabetic),
-        ))(line)
-        .map_err(|_| eyre!("Error parsing mapping"))?;
+        let (from, to) = line
+            .trim()
+            .split_once(" => ")
+            .ok_or_else(|| eyre!("Error parsing mapping `{line:?}`"))?;
 
         mappings.entry(from).or_insert_with(Vec::new).push(to);
     }

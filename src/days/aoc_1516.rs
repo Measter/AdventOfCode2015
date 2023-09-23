@@ -1,9 +1,9 @@
-use aoc_lib::{parsers::unsigned_number, Bench, BenchResult, Day, ParseResult, UserError};
+use aoc_lib::{Bench, BenchResult, Day, ParseResult, UserError};
+use chumsky::{IterParser, Parser};
 use color_eyre::{
     eyre::{eyre, Result},
     Report,
 };
-use nom::bytes::complete::take_while1;
 
 pub const DAY: Day = Day {
     day: 16,
@@ -61,43 +61,56 @@ struct Sue {
 
 impl Sue {
     fn parse(line: &str) -> Result<Self> {
-        use nom::{bytes::complete::tag, combinator::opt, multi::many0, sequence::tuple};
-
-        let (rest, (_, id, _)) = tuple((tag("Sue "), unsigned_number::<u16>, tag(": ")))(line)
-            .map_err(|e| eyre!("Error parsing ID: {}", e))?;
-
-        let (_, facts) = many0(tuple((
-            take_while1(|c: char| c.is_alphabetic()),
-            tag(": "),
-            unsigned_number::<u8>,
-            opt(tag(", ")),
-        )))(rest)
-        .map_err(|e| eyre!("Error parse facts: {}", e))?;
-
-        let mut sue = Sue {
-            id: id?,
-            ..Sue::default()
-        };
-
-        for (fact_name, _, fact_value, _) in facts {
-            let fact = match fact_name {
-                "children" => &mut sue.children,
-                "cats" => &mut sue.cats,
-                "samoyeds" => &mut sue.samoyeds,
-                "pomeranians" => &mut sue.pomeranians,
-                "akitas" => &mut sue.akitas,
-                "vizslas" => &mut sue.vizslas,
-                "goldfish" => &mut sue.goldfish,
-                "trees" => &mut sue.trees,
-                "cars" => &mut sue.cars,
-                "perfumes" => &mut sue.perfumes,
-                _ => return Err(eyre!("Unknown fact: {}", fact_name)),
+        fn parse_sue<'a>() -> impl Parser<'a, &'a str, Sue> {
+            use chumsky::{
+                primitive::just,
+                text::{ident, int},
             };
 
-            *fact = Some(fact_value?);
+            let id_num = int(10).from_str::<u16>().unwrapped();
+            let value_num = int(10).from_str::<u8>().unwrapped();
+
+            let id = just("Sue ").ignore_then(id_num).then_ignore(just(":"));
+            let fact = ident().then_ignore(just(": ")).then(value_num);
+
+            id.then(
+                fact.padded()
+                    .separated_by(just(","))
+                    .at_least(1)
+                    .collect::<Vec<_>>(),
+            )
+            .map(|(id, facts)| {
+                facts.into_iter().fold(
+                    Sue {
+                        id,
+                        ..Default::default()
+                    },
+                    |mut sue, (fact_name, fact_value)| {
+                        let fact = match fact_name {
+                            "children" => &mut sue.children,
+                            "cats" => &mut sue.cats,
+                            "samoyeds" => &mut sue.samoyeds,
+                            "pomeranians" => &mut sue.pomeranians,
+                            "akitas" => &mut sue.akitas,
+                            "vizslas" => &mut sue.vizslas,
+                            "goldfish" => &mut sue.goldfish,
+                            "trees" => &mut sue.trees,
+                            "cars" => &mut sue.cars,
+                            "perfumes" => &mut sue.perfumes,
+                            _ => unreachable!(),
+                        };
+
+                        *fact = Some(fact_value);
+                        sue
+                    },
+                )
+            })
         }
 
-        Ok(sue)
+        parse_sue()
+            .parse(line)
+            .into_output()
+            .ok_or_else(|| eyre!("Failed to parse line `{line:?}`"))
     }
 }
 

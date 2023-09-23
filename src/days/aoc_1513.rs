@@ -1,4 +1,5 @@
 use aoc_lib::{misc::ArrWindows, Bench, BenchResult, Day, ParseResult, UserError};
+use chumsky::Parser;
 use color_eyre::{
     eyre::{eyre, Result},
     Report,
@@ -48,34 +49,38 @@ struct People<'a> {
 
 impl<'a> People<'a> {
     fn parse(input: &'a str) -> Result<Self> {
-        use nom::{
-            bytes::complete::{tag, take_till1, take_while1},
-            sequence::tuple,
-        };
-
         let mut people = BTreeSet::new();
         let mut happiness = HashMap::new();
 
         for line in input.lines().map(str::trim) {
-            let (_, (first, _, dir, _, mag, _, second)) = tuple::<_, _, (), _>((
-                take_till1(char::is_whitespace),
-                tag(" would "),
-                take_till1(char::is_whitespace),
-                tag(" "),
-                take_while1(|c: char| c.is_ascii_digit()),
-                tag(" happiness units by sitting next to "),
-                take_till1(|c: char| c == '.'),
-            ))(line)?;
-
-            let happiness_change = mag.parse::<i32>()?
-                * match dir {
-                    "gain" => 1,
-                    "lose" => -1,
-                    _ => return Err(eyre!("Invalid magnitude: {}", dir)),
+            fn parse_line<'a>() -> impl Parser<'a, &'a str, (&'a str, i32, i32, &'a str)> {
+                use chumsky::{
+                    primitive::just,
+                    text::{ident, int},
                 };
 
+                let mag = int(10).from_str::<i32>().unwrapped();
+                let dir = just("gain").to(1).or(just("lose").to(-1));
+
+                ident()
+                    .then_ignore(just("would").padded())
+                    .then(dir)
+                    .boxed()
+                    .then(mag.padded())
+                    .then_ignore(just("happiness units by sitting next to "))
+                    .then(ident())
+                    .boxed()
+                    .then_ignore(just("."))
+                    .map(|(((a, b), c), d)| (a, b, c, d))
+            }
+
+            let (first, dir, mag, second) = parse_line()
+                .parse(line)
+                .into_output()
+                .ok_or_else(|| eyre!("Failed to parse `{line:?}`"))?;
+
             people.insert(first);
-            happiness.insert((first, second), happiness_change);
+            happiness.insert((first, second), dir * mag);
         }
 
         Ok(People {
