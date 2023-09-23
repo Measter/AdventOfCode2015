@@ -87,7 +87,7 @@ fn part2(input: &str) -> (usize, usize) {
     for c in input.chars() {
         match c {
             '"' => rendered.push_str(r#"\""#),
-            '\\' => rendered.push_str(r#"\\"#),
+            '\\' => rendered.push_str(r"\\"),
             _ => rendered.push(c),
         }
     }
